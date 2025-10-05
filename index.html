@@ -1,353 +1,574 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BRD Generator</title>
-    <style>
-        /* CSS สำหรับจัดหน้าตาให้สวยงามและใช้งานง่าย */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f7f9;
-        }
-        .container {
-            display: flex;
-            gap: 20px;
-            max-width: 1200px;
-            margin: auto;
-        }
-        .column {
-            background-color: #fff;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-        .main-column { flex: 2; } /* คอลัมน์หลักใหญ่กว่า */
-        .history-column { flex: 1; } /* คอลัมน์ประวัติ */
-        
-        h2 { color: #333; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
-        
-        /* Project Selection */
-        .project-select-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        #project-select, #new-project-name {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            flex-grow: 1;
-        }
-        .btn {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            font-weight: bold;
-        }
-        .btn-primary { background-color: #007bff; color: white; }
-        .btn-primary:hover:not(:disabled) { background-color: #0056b3; }
-        .btn-success { background-color: #28a745; color: white; }
-        .btn-success:hover:not(:disabled) { background-color: #1e7e34; }
-        .btn-danger { background-color: #dc3545; color: white; }
-        .btn:disabled { background-color: #ccc; cursor: not-allowed; }
+import React, { useState, useEffect } from 'react';
+import { FileText, Upload, Link2, Trash2, Plus, Loader2, ExternalLink, FolderOpen, Sparkles, CheckCircle, AlertCircle } from 'lucide-react';
 
-        /* File & URL List */
-        .requirement-list { list-style: none; padding: 0; margin-top: 10px; }
-        .requirement-list li {
-            background-color: #f9f9f9;
-            padding: 8px 10px;
-            margin-bottom: 5px;
-            border-radius: 4px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .remove-btn { 
-            background: none; border: none; color: #dc3545; cursor: pointer; font-weight: bold; 
-            margin-left: 10px;
-        }
+const API_ENDPOINT = 'https://n8nfordevsh.sh-pxmer.co/webhook';
 
-        /* History Table */
-        #history-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-        #history-table th, #history-table td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: left;
-        }
-        #history-table th {
-            background-color: #e9ecef;
-            color: #495057;
-        }
-        .link-url { text-decoration: none; color: #007bff; }
-        
-        /* BRD Status */
-        .brd-status {
-            padding: 15px;
-            margin-top: 20px;
-            border-radius: 5px;
-            background-color: #e9f7ef;
-            color: #1e7e34;
-            border: 1px solid #c3e6cb;
-            text-align: center;
-        }
-        .loading-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.8);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.2em;
-            color: #007bff;
-            border-radius: 8px;
-            z-index: 10;
-        }
-    </style>
-</head>
-<body>
+export default function BRDGenerator() {
+  const [projects, setProjects] = useState([]);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [showNewProject, setShowNewProject] = useState(false);
+  const [newProjectName, setNewProjectName] = useState('');
+  const [files, setFiles] = useState([]);
+  const [urls, setUrls] = useState(['']);
+  const [brdHistory, setBrdHistory] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState('');
+  const [generatedBRD, setGeneratedBRD] = useState(null);
+  const [activeTab, setActiveTab] = useState('file');
+  const [error, setError] = useState(null);
 
-<div class="container">
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
+  useEffect(() => {
+    if (selectedProject) {
+      fetchBRDHistory(selectedProject.project_id);
+      setGeneratedBRD(null);
+      setFiles([]);
+      setUrls(['']);
+    }
+  }, [selectedProject]);
+
+  const fetchProjects = async () => {
+    try {
+      const response = await fetch(`${API_ENDPOINT}/project-list`);
+      const data = await response.json();
+      if (data.success && data.data && data.data.projects) {
+        setProjects(data.data.projects);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setError('ไม่สามารถโหลดโปรเจคได้');
+    }
+  };
+
+  const createProject = async () => {
+    if (!newProjectName.trim()) {
+      setError('กรุณากรอกชื่อโปรเจค');
+      return;
+    }
     
-    <div id="history-brd-section" class="column history-column" disabled>
-        <h2>History BRD</h2>
-        
-        <h3 id="history-title" style="font-size: 1em; color: #555;">ประวัติ BRD (รวม 0 ฉบับ)</h3>
-        
-        <table id="history-table">
-            <thead>
-                <tr>
-                    <th>Version</th>
-                    <th>วันที่สร้าง</th>
-                    <th>Link</th>
-                </tr>
-            </thead>
-            <tbody>
-                </tbody>
-        </table>
-    </div>
-
-    <div id="main-brd-section" class="column main-column">
-        
-        <h2>Project Selection</h2>
-        <div class="project-select-group">
-            <select id="project-select">
-                <option value="">-- เลือก Project ที่มีอยู่ --</option>
-                </select>
-            <button id="show-create-project-btn" class="btn btn-primary" title="สร้าง Project ใหม่">+</button>
-        </div>
-        
-        <div id="create-project-form" class="project-select-group" style="display: none;">
-             <input type="text" id="new-project-name" placeholder="กรอกชื่อ Project ใหม่">
-             <button id="create-project-btn" class="btn btn-success">สร้าง</button>
-             <button id="cancel-create-btn" class="btn">ยกเลิก</button>
-        </div>
-        
-        <hr>
-
-        <div id="generate-brd-area" style="position: relative;">
-            <h2>Generate BRD</h2>
-
-            <div id="loading-overlay" class="loading-overlay">
-                กำลังวิเคราะห์และสร้าง BRD... โปรดรอสักครู่
-            </div>
-
-            <div id="requirement-inputs">
-                <h4>1. แนบเอกสารอ้างอิง (รูป, PDF, DOC, PPT, XLS)</h4>
-                
-                <input type="file" id="file-input" multiple 
-                       accept="image/*, .pdf, .doc, .docx, .ppt, .pptx, .xls, .xlsx"
-                       style="margin-bottom: 10px;">
-                
-                <ul id="selected-files-list" class="requirement-list">
-                    </ul>
-
-                <h4>2. วางลิงก์เอกสารอ้างอิง</h4>
-                <div class="project-select-group">
-                    <input type="url" id="url-input" placeholder="http:// หรือ https://..." style="margin-right: 0;">
-                    <button id="add-url-btn" class="btn btn-primary">+</button>
-                </div>
-
-                <ul id="selected-urls-list" class="requirement-list">
-                    </ul>
-            </div>
-            
-            <hr>
-
-            <div id="action-buttons" style="text-align: right; margin-top: 20px;">
-                <button id="analyze-btn" class="btn btn-primary" disabled>เริ่มวิเคราะห์</button>
-                
-                <button id="wireframe-btn" class="btn btn-success" style="display: none;">สร้าง Wireframe</button>
-            </div>
-            
-            <div id="brd-result-info" class="brd-status" style="display: none;">
-                </div>
-        </div>
-
-    </div>
-</div>
-
-<script>
-    const ENDPOINT = 'https://n8nfordevsh.sh-pxmer.co/webhook-test';
-    let selectedProjectId = null;
-    let selectedProjectName = null;
-    let requirementFiles = []; // [File, File, ...]
-    let requirementUrls = []; // ["url1", "url2", ...]
-
-    // Elements
-    const projectSelect = document.getElementById('project-select');
-    const analyzeBtn = document.getElementById('analyze-btn');
-    const wireframeBtn = document.getElementById('wireframe-btn');
-    const fileInput = document.getElementById('file-input');
-    const urlInput = document.getElementById('url-input');
-    const historyTableBody = document.querySelector('#history-table tbody');
-    const loadingOverlay = document.getElementById('loading-overlay');
-    const brdResultInfo = document.getElementById('brd-result-info');
-
-    // --- Utility Functions ---
-
-    // 1.1 ดึงรายการ Project
-    async function fetchProjects() {
-        // ... (API call GET {{endpoint}}/project-list)
-        // ... (Populate projectSelect dropdown)
-    }
-
-    // 3.1 ดึงประวัติ BRD
-    async function fetchBrdHistory(projectId) {
-        // ... (API call POST {{endpoint}}/brd-list)
-        // ... (Populate historyTableBody)
-    }
-
-    // 2.2 อัปเดตสถานะปุ่ม "เริ่มวิเคราะห์"
-    function updateAnalyzeButtonState() {
-        const hasRequirements = requirementFiles.length > 0 || requirementUrls.length > 0;
-        analyzeBtn.disabled = !hasRequirements;
-    }
-
-    // 2.3 & 2.4 เริ่มวิเคราะห์และสร้าง BRD
-    async function createBRD() {
-        if (!selectedProjectId) return;
-        
-        // 2.4 แสดง Loading
-        loadingOverlay.style.display = 'flex';
-        analyzeBtn.disabled = true;
-        wireframeBtn.disabled = true;
-
-        const formData = new FormData();
-        formData.append('project_id', selectedProjectId);
-        
-        // 2.3 เพิ่มไฟล์
-        requirementFiles.forEach(file => {
-            formData.append('requirement_files[]', file, file.name);
-        });
-        
-        // 2.3 เพิ่ม URL
-        if (requirementUrls.length > 0) {
-            formData.append('requirement_urls', JSON.stringify(requirementUrls)); 
-            // NOTE: API design แนะนำให้ส่ง requirement_urls เป็น array string ใน body
-            // สำหรับ multipart/form-data อาจจะต้องส่งเป็น JSON string หรือส่งแยก field/index
+    try {
+      setLoading(true);
+      const formData = new FormData();
+      formData.append('project_name', newProjectName.trim());
+      
+      const response = await fetch(`${API_ENDPOINT}/create-project`, {
+        method: 'POST',
+        body: formData
+      });
+      const data = await response.json();
+      
+      if (data.success && data.data && data.data.projects) {
+        await fetchProjects();
+        setNewProjectName('');
+        setShowNewProject(false);
+        if (data.data.projects.length > 0) {
+          setSelectedProject(data.data.projects[0]);
         }
-
-        try {
-            const response = await fetch(`${ENDPOINT}/create-brd`, {
-                method: 'POST',
-                body: formData
-            });
-            const data = await response.json();
-            
-            // 2.5 จัดการ Response เมื่อสำเร็จ
-            if (data[0].success) {
-                const brdData = data[0].data.brd;
-                
-                // แสดงผลลัพธ์ BRD
-                brdResultInfo.innerHTML = `
-                    BRD V.${brdData.version_number} สร้างสำเร็จ! 
-                    <a href="${brdData.file_url}" target="_blank" class="link-url">
-                        ${brdData.file_name}
-                    </a>
-                `;
-                brdResultInfo.style.display = 'block';
-
-                // เปลี่ยนปุ่ม
-                analyzeBtn.textContent = 'วิเคราะห์ใหม่'; // หรือ สร้างเอกสารใหม่
-                analyzeBtn.disabled = false;
-                
-                // แสดงปุ่มสร้าง Wireframe
-                wireframeBtn.style.display = 'inline-block';
-                wireframeBtn.onclick = () => {
-                    // 2.5 เปิดหน้า Wireframe ใหม่พร้อม parameter
-                    window.open(`/wireframe-page?project_id=${selectedProjectId}&brd_id=${brdData.brd_version_id}`, '_blank');
-                };
-
-                // อัปเดตประวัติ
-                fetchBrdHistory(selectedProjectId);
-            }
-        } catch (error) {
-            console.error('Error creating BRD:', error);
-            // แสดงข้อความผิดพลาด
-        } finally {
-            // ซ่อน Loading และเปิดใช้งานปุ่มอื่น ๆ
-            loadingOverlay.style.display = 'none';
-        }
+        setError(null);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setError('ไม่สามารถสร้างโปรเจคได้');
+    } finally {
+      setLoading(false);
     }
+  };
 
+  const fetchBRDHistory = async (projectId) => {
+    try {
+      const formData = new FormData();
+      formData.append('project_id', projectId);
+      
+      const response = await fetch(`${API_ENDPOINT}/brd-list`, {
+        method: 'POST',
+        body: formData
+      });
+      const data = await response.json();
+      
+      if (data.success && data.data && data.data.projects) {
+        setBrdHistory(data.data.projects);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
 
-    // --- Event Listeners ---
-
-    // 1.1, 1.3 เมื่อเลือก Project
-    projectSelect.addEventListener('change', (e) => {
-        const projectId = e.target.value;
-        if (projectId) {
-            selectedProjectId = projectId;
-            // 3. เริ่มดึงประวัติ
-            fetchBrdHistory(projectId);
-            // 2. เปิดใช้งานส่วน Generate BRD
-            document.getElementById('generate-brd-area').removeAttribute('disabled');
-        } else {
-            // ปิดใช้งานเมื่อไม่มี Project
-            selectedProjectId = null;
-            document.getElementById('generate-brd-area').setAttribute('disabled', true);
-        }
-    });
-
-    // 2.1 การเลือกไฟล์
-    fileInput.addEventListener('change', (e) => {
-        // เพิ่มไฟล์ใหม่เข้าใน requirementFiles
-        requirementFiles.push(...Array.from(e.target.files));
-        // ... (Logic for rendering selected-files-list and adding remove handlers)
-        updateAnalyzeButtonState();
-    });
-
-    // 2.1 การเพิ่ม URL
-    document.getElementById('add-url-btn').addEventListener('click', () => {
-        const url = urlInput.value.trim();
-        if (url) {
-            requirementUrls.push(url);
-            urlInput.value = '';
-            // ... (Logic for rendering selected-urls-list and adding remove handlers)
-            updateAnalyzeButtonState();
-        }
-    });
-
-    // 2.3 ปุ่ม เริ่มวิเคราะห์ / วิเคราะห์ใหม่
-    analyzeBtn.addEventListener('click', createBRD);
+  const handleFileChange = (e) => {
+    const selectedFiles = Array.from(e.target.files);
+    const validExtensions = ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'];
     
-    // (เรียก fetchProjects() เมื่อโหลดหน้าเว็บ)
-    window.onload = fetchProjects;
+    const validFiles = selectedFiles.filter(file => {
+      const ext = file.name.split('.').pop().toLowerCase();
+      return validExtensions.includes(ext);
+    });
+    
+    setFiles([...files, ...validFiles]);
+  };
 
-</script>
+  const removeFile = (index) => {
+    setFiles(files.filter((_, i) => i !== index));
+  };
 
-</body>
-</html>
+  const addUrlField = () => {
+    setUrls([...urls, '']);
+  };
+
+  const updateUrl = (index, value) => {
+    const newUrls = [...urls];
+    newUrls[index] = value;
+    setUrls(newUrls);
+  };
+
+  const removeUrl = (index) => {
+    if (urls.length > 1) {
+      setUrls(urls.filter((_, i) => i !== index));
+    }
+  };
+
+  const canGenerate = () => {
+    if (!selectedProject) return false;
+    const hasFiles = files.length > 0;
+    const hasValidUrls = urls.some(url => url.trim() !== '');
+    return hasFiles || hasValidUrls;
+  };
+
+  const generateBRD = async () => {
+    if (!canGenerate()) return;
+    
+    setLoading(true);
+    setLoadingMessage('กำลังวิเคราะห์และสร้าง BRD...');
+    setError(null);
+    
+    try {
+      const formData = new FormData();
+      formData.append('project_id', selectedProject.project_id);
+      
+      files.forEach(file => {
+        formData.append('requirement_files[]', file);
+      });
+      
+      const validUrls = urls.filter(url => url.trim() !== '');
+      if (validUrls.length > 0) {
+        formData.append('requirement_urls', JSON.stringify(validUrls));
+      }
+      
+      const response = await fetch(`${API_ENDPOINT}/create-brd`, {
+        method: 'POST',
+        body: formData
+      });
+      const data = await response.json();
+      
+      if (Array.isArray(data) && data.length > 0 && data[0].success) {
+        const result = data[0];
+        if (result.data && result.data.brd) {
+          setGeneratedBRD(result.data.brd);
+          await fetchBRDHistory(selectedProject.project_id);
+          setFiles([]);
+          setUrls(['']);
+          setError(null);
+        }
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setError('ไม่สามารถสร้าง BRD ได้');
+    } finally {
+      setLoading(false);
+      setLoadingMessage('');
+    }
+  };
+
+  const resetGeneration = () => {
+    setGeneratedBRD(null);
+    setFiles([]);
+    setUrls(['']);
+    setError(null);
+  };
+
+  const goToWireframe = () => {
+    if (generatedBRD && selectedProject) {
+      const params = new URLSearchParams({
+        project_id: selectedProject.project_id,
+        brd_id: generatedBRD.brd_version_id
+      });
+      window.open(`/wireframe?${params.toString()}`, '_blank');
+    }
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('th-TH', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const getFileIcon = (filename) => {
+    const ext = filename.split('.').pop().toLowerCase();
+    if (['jpg', 'jpeg', 'png', 'gif'].includes(ext)) return '🖼️';
+    if (ext === 'pdf') return '📄';
+    if (['doc', 'docx'].includes(ext)) return '📝';
+    if (['ppt', 'pptx'].includes(ext)) return '📊';
+    if (['xls', 'xlsx'].includes(ext)) return '📈';
+    return '📁';
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
+      <div className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-6 py-6">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl shadow-lg">
+              <Sparkles className="text-white" size={32} />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                BRD Generator
+              </h1>
+              <p className="text-gray-600 mt-1">สร้างเอกสาร Business Requirements Document อัตโนมัติด้วย AI</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        {error && (
+          <div className="mb-6 bg-red-50 border-l-4 border-red-500 rounded-lg p-4 flex items-start gap-3">
+            <AlertCircle className="text-red-500 flex-shrink-0 mt-0.5" size={20} />
+            <div>
+              <p className="text-red-800 font-medium">เกิดข้อผิดพลาด</p>
+              <p className="text-red-600 text-sm mt-1">{error}</p>
+            </div>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+              <div className="bg-gradient-to-r from-purple-500 to-indigo-600 p-6">
+                <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+                  <FolderOpen size={24} />
+                  เลือกโปรเจค
+                </h2>
+              </div>
+              
+              <div className="p-6">
+                {!showNewProject ? (
+                  <div className="flex gap-3">
+                    <div className="flex-1 relative">
+                      <select
+                        className="w-full p-4 pr-10 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none appearance-none bg-white text-gray-800 font-medium transition shadow-sm hover:shadow"
+                        value={selectedProject?.project_id || ''}
+                        onChange={(e) => {
+                          const project = projects.find(p => p.project_id === e.target.value);
+                          setSelectedProject(project);
+                        }}
+                      >
+                        <option value="">เลือกโปรเจค...</option>
+                        {projects.map(project => (
+                          <option key={project.project_id} value={project.project_id}>
+                            {project.project_name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <button
+                      onClick={() => setShowNewProject(true)}
+                      className="px-6 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 transition shadow-lg flex items-center gap-2 font-medium"
+                    >
+                      <Plus size={20} />
+                      สร้างใหม่
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <input
+                      type="text"
+                      placeholder="กรอกชื่อโปรเจค..."
+                      className="w-full p-4 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:outline-none text-gray-800 font-medium shadow-sm"
+                      value={newProjectName}
+                      onChange={(e) => setNewProjectName(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && createProject()}
+                    />
+                    <div className="flex gap-3">
+                      <button
+                        onClick={createProject}
+                        disabled={loading || !newProjectName.trim()}
+                        className="flex-1 px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 transition font-medium shadow-lg disabled:opacity-50"
+                      >
+                        บันทึก
+                      </button>
+                      <button
+                        onClick={() => {
+                          setShowNewProject(false);
+                          setNewProjectName('');
+                          setError(null);
+                        }}
+                        disabled={loading}
+                        className="flex-1 px-4 py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition font-medium"
+                      >
+                        ยกเลิก
+                      </button>
+                    </div>
+                  </div>
+                )}
+                
+                {selectedProject && (
+                  <div className="mt-4 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl border border-purple-200">
+                    <p className="text-sm text-gray-600">โปรเจคที่เลือก:</p>
+                    <p className="text-lg font-semibold text-purple-700 mt-1">{selectedProject.project_name}</p>
+                    <p className="text-xs text-gray-500 mt-1">ID: {selectedProject.project_id}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+              <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-6">
+                <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+                  <FileText size={24} />
+                  สร้าง BRD Document
+                </h2>
+              </div>
+              
+              <div className="p-6">
+                {!selectedProject ? (
+                  <div className="text-center py-16">
+                    <div className="inline-block p-4 bg-gray-100 rounded-full mb-4">
+                      <FolderOpen className="text-gray-400" size={48} />
+                    </div>
+                    <p className="text-gray-500 text-lg font-medium">กรุณาเลือกโปรเจคก่อนเริ่มการทำงาน</p>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="flex border-b-2 border-gray-200 mb-6">
+                      <button
+                        onClick={() => setActiveTab('file')}
+                        className={`px-6 py-3 font-medium transition relative ${activeTab === 'file' ? 'text-purple-600' : 'text-gray-500'}`}
+                      >
+                        <Upload className="inline mr-2" size={18} />
+                        แนบไฟล์
+                        {activeTab === 'file' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-500"></div>}
+                      </button>
+                      <button
+                        onClick={() => setActiveTab('url')}
+                        className={`px-6 py-3 font-medium transition relative ${activeTab === 'url' ? 'text-purple-600' : 'text-gray-500'}`}
+                      >
+                        <Link2 className="inline mr-2" size={18} />
+                        URL ลิงก์
+                        {activeTab === 'url' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-500"></div>}
+                      </button>
+                    </div>
+
+                    {activeTab === 'file' && (
+                      <div className="space-y-4">
+                        <label className="block cursor-pointer">
+                          <div className="border-2 border-dashed border-purple-300 rounded-2xl p-10 text-center hover:border-purple-500 hover:bg-purple-50 transition">
+                            <Upload className="mx-auto text-purple-600 mb-4" size={40} />
+                            <p className="text-gray-700 font-medium text-lg mb-2">คลิกเพื่อเลือกไฟล์</p>
+                            <p className="text-sm text-gray-500">รองรับ: รูปภาพ, PDF, Word, PowerPoint, Excel</p>
+                            <input
+                              type="file"
+                              multiple
+                              accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx"
+                              onChange={handleFileChange}
+                              className="hidden"
+                              disabled={loading}
+                            />
+                          </div>
+                        </label>
+                        
+                        {files.length > 0 && (
+                          <div className="space-y-2">
+                            <p className="text-sm font-medium text-gray-700">ไฟล์ที่เลือก ({files.length})</p>
+                            {files.map((file, index) => (
+                              <div key={index} className="flex items-center justify-between bg-purple-50 p-4 rounded-xl border border-purple-200">
+                                <div className="flex items-center gap-3 flex-1">
+                                  <span className="text-2xl">{getFileIcon(file.name)}</span>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium text-gray-800 truncate">{file.name}</p>
+                                    <p className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} KB</p>
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={() => removeFile(index)}
+                                  className="ml-3 p-2 text-red-500 hover:bg-red-100 rounded-lg"
+                                  disabled={loading}
+                                >
+                                  <Trash2 size={18} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {activeTab === 'url' && (
+                      <div className="space-y-3">
+                        {urls.map((url, index) => (
+                          <div key={index} className="flex gap-2">
+                            <input
+                              type="url"
+                              placeholder="https://example.com/document"
+                              className="flex-1 p-4 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none"
+                              value={url}
+                              onChange={(e) => updateUrl(index, e.target.value)}
+                              disabled={loading}
+                            />
+                            {urls.length > 1 && (
+                              <button
+                                onClick={() => removeUrl(index)}
+                                className="px-4 text-red-500 hover:bg-red-50 rounded-xl"
+                                disabled={loading}
+                              >
+                                <Trash2 size={20} />
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                        <button
+                          onClick={addUrlField}
+                          className="w-full p-3 border-2 border-dashed border-purple-300 rounded-xl text-purple-600 hover:border-purple-500 hover:bg-purple-50 transition font-medium"
+                          disabled={loading}
+                        >
+                          <Plus className="inline mr-2" size={18} />
+                          เพิ่ม URL
+                        </button>
+                      </div>
+                    )}
+
+                    {generatedBRD && (
+                      <div className="mt-6 p-6 bg-green-50 border-2 border-green-300 rounded-2xl">
+                        <div className="flex items-start gap-4">
+                          <CheckCircle className="text-green-600" size={24} />
+                          <div className="flex-1">
+                            <p className="font-semibold text-green-800 text-lg mb-2">สร้าง BRD สำเร็จ!</p>
+                            <p className="text-sm text-green-700 mb-3">{generatedBRD.file_name}</p>
+                            <a
+                              href={generatedBRD.file_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 px-4 py-2 bg-white text-green-700 rounded-lg hover:bg-green-100 transition font-medium border border-green-200"
+                            >
+                              <ExternalLink size={16} />
+                              เปิดดูเอกสาร BRD
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="mt-6 flex gap-3">
+                      {!generatedBRD ? (
+                        <button
+                          onClick={generateBRD}
+                          disabled={!canGenerate() || loading}
+                          className={`flex-1 py-4 rounded-xl font-semibold flex items-center justify-center gap-2 ${
+                            canGenerate() && !loading
+                              ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700'
+                              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                          }`}
+                        >
+                          {loading ? (
+                            <><Loader2 className="animate-spin" size={20} />กำลังสร้าง...</>
+                          ) : (
+                            <><Sparkles size={20} />เริ่มวิเคราะห์และสร้าง BRD</>
+                          )}
+                        </button>
+                      ) : (
+                        <>
+                          <button
+                            onClick={resetGeneration}
+                            className="flex-1 py-4 bg-gradient-to-r from-orange-500 to-amber-600 text-white rounded-xl font-semibold hover:from-orange-600 hover:to-amber-700"
+                          >
+                            วิเคราะห์ใหม่
+                          </button>
+                          <button
+                            onClick={goToWireframe}
+                            className="flex-1 py-4 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-xl font-semibold hover:from-blue-600 hover:to-cyan-700"
+                          >
+                            สร้าง Wireframe
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden sticky top-6">
+              <div className="bg-gradient-to-r from-pink-500 to-rose-600 p-6">
+                <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+                  <FileText size={24} />
+                  ประวัติการสร้าง
+                </h2>
+              </div>
+              
+              <div className="p-6">
+                {!selectedProject ? (
+                  <div className="text-center py-12">
+                    <FileText className="mx-auto text-gray-400 mb-3" size={32} />
+                    <p className="text-gray-500 text-sm">เลือกโปรเจคเพื่อดูประวัติ</p>
+                  </div>
+                ) : brdHistory.length === 0 ? (
+                  <div className="text-center py-12">
+                    <FileText className="mx-auto text-purple-400 mb-3" size={32} />
+                    <p className="text-gray-500 text-sm">ยังไม่มีเอกสาร BRD</p>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="mb-4 p-3 bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl">
+                      <p className="text-sm text-gray-600">เอกสารทั้งหมด</p>
+                      <p className="text-2xl font-bold text-purple-700">{brdHistory.length}</p>
+                    </div>
+                    
+                    <div className="space-y-2 max-h-96 overflow-y-auto">
+                      {brdHistory.map((brd) => (
+                        <div key={brd.brd_version_id} className="p-4 bg-gray-50 rounded-xl border border-gray-200 hover:shadow-md transition">
+                          <div className="flex items-start justify-between mb-2">
+                            <span className="px-3 py-1 bg-purple-600 text-white text-xs font-bold rounded-full">
+                              V.{brd.version_number}
+                            </span>
+                            <a
+                              href={brd.file_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-800"
+                            >
+                              <ExternalLink size={16} />
+                            </a>
+                          </div>
+                          <p className="text-xs text-gray-600 mb-1 font-medium truncate">{brd.file_name}</p>
+                          <p className="text-xs text-gray-400">{formatDate(brd.created_date)}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {loading && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-10 text-center shadow-2xl max-w-md">
+            <Loader2 className="animate-spin text-purple-600 mx-auto mb-6" size={64} />
+            <p className="text-2xl font-bold text-gray-800 mb-2">กำลังประมวลผล</p>
+            <p className="text-gray-600">{loadingMessage || 'กรุณารอสักครู่...'}</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
