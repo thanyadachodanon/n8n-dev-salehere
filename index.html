@@ -3,37 +3,351 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>เว็บไซต์ทดสอบของฉัน</title>
+    <title>BRD Generator</title>
     <style>
+        /* CSS สำหรับจัดหน้าตาให้สวยงามและใช้งานง่าย */
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding-top: 50px;
-            background-color: #f0f0f0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f7f9;
         }
         .container {
-            background-color: #ffffff;
-            padding: 20px;
+            display: flex;
+            gap: 20px;
+            max-width: 1200px;
+            margin: auto;
+        }
+        .column {
+            background-color: #fff;
+            padding: 25px;
             border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            display: inline-block;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
-        h1 {
-            color: #333333;
+        .main-column { flex: 2; } /* คอลัมน์หลักใหญ่กว่า */
+        .history-column { flex: 1; } /* คอลัมน์ประวัติ */
+        
+        h2 { color: #333; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
+        
+        /* Project Selection */
+        .project-select-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
         }
-        p {
-            color: #666666;
+        #project-select, #new-project-name {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            flex-grow: 1;
+        }
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-weight: bold;
+        }
+        .btn-primary { background-color: #007bff; color: white; }
+        .btn-primary:hover:not(:disabled) { background-color: #0056b3; }
+        .btn-success { background-color: #28a745; color: white; }
+        .btn-success:hover:not(:disabled) { background-color: #1e7e34; }
+        .btn-danger { background-color: #dc3545; color: white; }
+        .btn:disabled { background-color: #ccc; cursor: not-allowed; }
+
+        /* File & URL List */
+        .requirement-list { list-style: none; padding: 0; margin-top: 10px; }
+        .requirement-list li {
+            background-color: #f9f9f9;
+            padding: 8px 10px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .remove-btn { 
+            background: none; border: none; color: #dc3545; cursor: pointer; font-weight: bold; 
+            margin-left: 10px;
+        }
+
+        /* History Table */
+        #history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        #history-table th, #history-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        #history-table th {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+        .link-url { text-decoration: none; color: #007bff; }
+        
+        /* BRD Status */
+        .brd-status {
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+            background-color: #e9f7ef;
+            color: #1e7e34;
+            border: 1px solid #c3e6cb;
+            text-align: center;
+        }
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2em;
+            color: #007bff;
+            border-radius: 8px;
+            z-index: 10;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>👋 Hello GitHub Pages!</h1>
-        <p>นี่คือเว็บไซต์แรกที่ฉันสร้างด้วย GitHub Pages</p>
-        <p>ถ้าคุณเห็นข้อความนี้ แปลว่าเว็บไซต์ของคุณทำงานได้เรียบร้อยแล้ว!</p>
-        <a href="https://github.com/your-username" target="_blank">ไปที่โปรไฟล์ GitHub ของฉัน</a>
+<div class="container">
+    
+    <div id="history-brd-section" class="column history-column" disabled>
+        <h2>History BRD</h2>
+        
+        <h3 id="history-title" style="font-size: 1em; color: #555;">ประวัติ BRD (รวม 0 ฉบับ)</h3>
+        
+        <table id="history-table">
+            <thead>
+                <tr>
+                    <th>Version</th>
+                    <th>วันที่สร้าง</th>
+                    <th>Link</th>
+                </tr>
+            </thead>
+            <tbody>
+                </tbody>
+        </table>
     </div>
+
+    <div id="main-brd-section" class="column main-column">
+        
+        <h2>Project Selection</h2>
+        <div class="project-select-group">
+            <select id="project-select">
+                <option value="">-- เลือก Project ที่มีอยู่ --</option>
+                </select>
+            <button id="show-create-project-btn" class="btn btn-primary" title="สร้าง Project ใหม่">+</button>
+        </div>
+        
+        <div id="create-project-form" class="project-select-group" style="display: none;">
+             <input type="text" id="new-project-name" placeholder="กรอกชื่อ Project ใหม่">
+             <button id="create-project-btn" class="btn btn-success">สร้าง</button>
+             <button id="cancel-create-btn" class="btn">ยกเลิก</button>
+        </div>
+        
+        <hr>
+
+        <div id="generate-brd-area" style="position: relative;">
+            <h2>Generate BRD</h2>
+
+            <div id="loading-overlay" class="loading-overlay">
+                กำลังวิเคราะห์และสร้าง BRD... โปรดรอสักครู่
+            </div>
+
+            <div id="requirement-inputs">
+                <h4>1. แนบเอกสารอ้างอิง (รูป, PDF, DOC, PPT, XLS)</h4>
+                
+                <input type="file" id="file-input" multiple 
+                       accept="image/*, .pdf, .doc, .docx, .ppt, .pptx, .xls, .xlsx"
+                       style="margin-bottom: 10px;">
+                
+                <ul id="selected-files-list" class="requirement-list">
+                    </ul>
+
+                <h4>2. วางลิงก์เอกสารอ้างอิง</h4>
+                <div class="project-select-group">
+                    <input type="url" id="url-input" placeholder="http:// หรือ https://..." style="margin-right: 0;">
+                    <button id="add-url-btn" class="btn btn-primary">+</button>
+                </div>
+
+                <ul id="selected-urls-list" class="requirement-list">
+                    </ul>
+            </div>
+            
+            <hr>
+
+            <div id="action-buttons" style="text-align: right; margin-top: 20px;">
+                <button id="analyze-btn" class="btn btn-primary" disabled>เริ่มวิเคราะห์</button>
+                
+                <button id="wireframe-btn" class="btn btn-success" style="display: none;">สร้าง Wireframe</button>
+            </div>
+            
+            <div id="brd-result-info" class="brd-status" style="display: none;">
+                </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const ENDPOINT = 'https://n8nfordevsh.sh-pxmer.co/webhook-test';
+    let selectedProjectId = null;
+    let selectedProjectName = null;
+    let requirementFiles = []; // [File, File, ...]
+    let requirementUrls = []; // ["url1", "url2", ...]
+
+    // Elements
+    const projectSelect = document.getElementById('project-select');
+    const analyzeBtn = document.getElementById('analyze-btn');
+    const wireframeBtn = document.getElementById('wireframe-btn');
+    const fileInput = document.getElementById('file-input');
+    const urlInput = document.getElementById('url-input');
+    const historyTableBody = document.querySelector('#history-table tbody');
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const brdResultInfo = document.getElementById('brd-result-info');
+
+    // --- Utility Functions ---
+
+    // 1.1 ดึงรายการ Project
+    async function fetchProjects() {
+        // ... (API call GET {{endpoint}}/project-list)
+        // ... (Populate projectSelect dropdown)
+    }
+
+    // 3.1 ดึงประวัติ BRD
+    async function fetchBrdHistory(projectId) {
+        // ... (API call POST {{endpoint}}/brd-list)
+        // ... (Populate historyTableBody)
+    }
+
+    // 2.2 อัปเดตสถานะปุ่ม "เริ่มวิเคราะห์"
+    function updateAnalyzeButtonState() {
+        const hasRequirements = requirementFiles.length > 0 || requirementUrls.length > 0;
+        analyzeBtn.disabled = !hasRequirements;
+    }
+
+    // 2.3 & 2.4 เริ่มวิเคราะห์และสร้าง BRD
+    async function createBRD() {
+        if (!selectedProjectId) return;
+        
+        // 2.4 แสดง Loading
+        loadingOverlay.style.display = 'flex';
+        analyzeBtn.disabled = true;
+        wireframeBtn.disabled = true;
+
+        const formData = new FormData();
+        formData.append('project_id', selectedProjectId);
+        
+        // 2.3 เพิ่มไฟล์
+        requirementFiles.forEach(file => {
+            formData.append('requirement_files[]', file, file.name);
+        });
+        
+        // 2.3 เพิ่ม URL
+        if (requirementUrls.length > 0) {
+            formData.append('requirement_urls', JSON.stringify(requirementUrls)); 
+            // NOTE: API design แนะนำให้ส่ง requirement_urls เป็น array string ใน body
+            // สำหรับ multipart/form-data อาจจะต้องส่งเป็น JSON string หรือส่งแยก field/index
+        }
+
+        try {
+            const response = await fetch(`${ENDPOINT}/create-brd`, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            
+            // 2.5 จัดการ Response เมื่อสำเร็จ
+            if (data[0].success) {
+                const brdData = data[0].data.brd;
+                
+                // แสดงผลลัพธ์ BRD
+                brdResultInfo.innerHTML = `
+                    BRD V.${brdData.version_number} สร้างสำเร็จ! 
+                    <a href="${brdData.file_url}" target="_blank" class="link-url">
+                        ${brdData.file_name}
+                    </a>
+                `;
+                brdResultInfo.style.display = 'block';
+
+                // เปลี่ยนปุ่ม
+                analyzeBtn.textContent = 'วิเคราะห์ใหม่'; // หรือ สร้างเอกสารใหม่
+                analyzeBtn.disabled = false;
+                
+                // แสดงปุ่มสร้าง Wireframe
+                wireframeBtn.style.display = 'inline-block';
+                wireframeBtn.onclick = () => {
+                    // 2.5 เปิดหน้า Wireframe ใหม่พร้อม parameter
+                    window.open(`/wireframe-page?project_id=${selectedProjectId}&brd_id=${brdData.brd_version_id}`, '_blank');
+                };
+
+                // อัปเดตประวัติ
+                fetchBrdHistory(selectedProjectId);
+            }
+        } catch (error) {
+            console.error('Error creating BRD:', error);
+            // แสดงข้อความผิดพลาด
+        } finally {
+            // ซ่อน Loading และเปิดใช้งานปุ่มอื่น ๆ
+            loadingOverlay.style.display = 'none';
+        }
+    }
+
+
+    // --- Event Listeners ---
+
+    // 1.1, 1.3 เมื่อเลือก Project
+    projectSelect.addEventListener('change', (e) => {
+        const projectId = e.target.value;
+        if (projectId) {
+            selectedProjectId = projectId;
+            // 3. เริ่มดึงประวัติ
+            fetchBrdHistory(projectId);
+            // 2. เปิดใช้งานส่วน Generate BRD
+            document.getElementById('generate-brd-area').removeAttribute('disabled');
+        } else {
+            // ปิดใช้งานเมื่อไม่มี Project
+            selectedProjectId = null;
+            document.getElementById('generate-brd-area').setAttribute('disabled', true);
+        }
+    });
+
+    // 2.1 การเลือกไฟล์
+    fileInput.addEventListener('change', (e) => {
+        // เพิ่มไฟล์ใหม่เข้าใน requirementFiles
+        requirementFiles.push(...Array.from(e.target.files));
+        // ... (Logic for rendering selected-files-list and adding remove handlers)
+        updateAnalyzeButtonState();
+    });
+
+    // 2.1 การเพิ่ม URL
+    document.getElementById('add-url-btn').addEventListener('click', () => {
+        const url = urlInput.value.trim();
+        if (url) {
+            requirementUrls.push(url);
+            urlInput.value = '';
+            // ... (Logic for rendering selected-urls-list and adding remove handlers)
+            updateAnalyzeButtonState();
+        }
+    });
+
+    // 2.3 ปุ่ม เริ่มวิเคราะห์ / วิเคราะห์ใหม่
+    analyzeBtn.addEventListener('click', createBRD);
+    
+    // (เรียก fetchProjects() เมื่อโหลดหน้าเว็บ)
+    window.onload = fetchProjects;
+
+</script>
 
 </body>
 </html>
