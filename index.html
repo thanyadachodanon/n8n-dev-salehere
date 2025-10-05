@@ -108,6 +108,11 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
+        select:disabled, input:disabled {
+            background: #f7fafc;
+            cursor: not-allowed;
+        }
+
         .flex-row {
             display: flex;
             gap: 12px;
@@ -192,31 +197,6 @@
             background: #3182ce;
         }
 
-        .tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #e2e8f0;
-        }
-
-        .tab {
-            padding: 12px 24px;
-            background: none;
-            border: none;
-            border-bottom: 3px solid transparent;
-            font-size: 1rem;
-            font-weight: 500;
-            font-family: 'Noto Sans Thai', sans-serif;
-            cursor: pointer;
-            color: #718096;
-            transition: all 0.3s;
-        }
-
-        .tab.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
-        }
-
         .upload-area {
             border: 2px dashed #cbd5e0;
             border-radius: 12px;
@@ -224,10 +204,17 @@
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
+            margin-bottom: 20px;
         }
 
-        .upload-area:hover {
+        .upload-area:hover:not(.disabled) {
             border-color: #667eea;
+            background: #f7fafc;
+        }
+
+        .upload-area.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
             background: #f7fafc;
         }
 
@@ -236,7 +223,7 @@
         }
 
         .file-list {
-            margin-top: 16px;
+            margin-bottom: 20px;
         }
 
         .file-item, .url-item {
@@ -363,6 +350,26 @@
             margin-bottom: 12px;
         }
 
+        .warning-box {
+            background: #fef5e7;
+            border: 2px solid #f39c12;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            color: #7d6608;
+        }
+
+        .warning-box-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+        }
+
+        .section-divider {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 24px 0;
+        }
+
         @media (max-width: 1024px) {
             .main-grid {
                 grid-template-columns: 1fr;
@@ -418,15 +425,18 @@
                         <h2>สร้างเอกสาร BRD</h2>
                     </div>
 
-                    <div id="requirementsSection">
-                        <div class="tabs">
-                            <button class="tab active" onclick="switchTab('file')">📎 แนบไฟล์</button>
-                            <button class="tab" onclick="switchTab('url')">🔗 วาง URL</button>
-                        </div>
+                    <!-- Warning when no project selected -->
+                    <div id="noProjectWarning" class="warning-box">
+                        <div class="warning-box-icon">⚠️</div>
+                        <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 8px;">กรุณาเลือกโปรเจคก่อน</div>
+                        <div>คุณต้องเลือกโปรเจคก่อนจึงจะสามารถแนบไฟล์หรือสร้างเอกสาร BRD ได้</div>
+                    </div>
 
-                        <!-- File Upload Tab -->
-                        <div id="fileTab">
-                            <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                    <div id="requirementsSection" class="hidden">
+                        <!-- File Upload Section -->
+                        <div class="form-group">
+                            <label class="form-label">📎 แนบไฟล์จากเครื่อง</label>
+                            <div class="upload-area" id="uploadArea" onclick="handleUploadClick()">
                                 <div style="font-size: 3rem; margin-bottom: 12px;">📤</div>
                                 <div style="font-weight: 600; margin-bottom: 8px;">คลิกเพื่อเลือกไฟล์</div>
                                 <div style="color: #718096; font-size: 0.9rem;">รองรับ: รูปภาพ, PDF, DOC, PPT, XLS</div>
@@ -435,8 +445,11 @@
                             <div id="fileList" class="file-list"></div>
                         </div>
 
-                        <!-- URL Tab -->
-                        <div id="urlTab" class="hidden">
+                        <div class="section-divider"></div>
+
+                        <!-- URL Section -->
+                        <div class="form-group">
+                            <label class="form-label">🔗 วาง URL ลิงก์เอกสาร</label>
                             <div id="urlList"></div>
                             <button class="btn btn-outline" style="width: 100%; margin-top: 12px;" onclick="addUrlField()">+ เพิ่ม URL</button>
                         </div>
@@ -461,9 +474,9 @@
                     <h2>ประวัติการสร้าง BRD</h2>
                 </div>
                 <div id="historyContent">
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📋</div>
-                        <p>เลือกโปรเจคเพื่อดูประวัติ</p>
+                    <div class="warning-box">
+                        <div class="warning-box-icon">⚠️</div>
+                        <div style="font-weight: 600;">กรุณาเลือกโปรเจคก่อน</div>
                     </div>
                 </div>
             </div>
@@ -495,10 +508,17 @@
         // Project Functions
         async function loadProjects() {
             try {
-                const response = await fetch(`${API_ENDPOINT}/project-list`);
-                const data = await response.json();
+                const response = await fetch(`${API_ENDPOINT}/project-list`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
                 
-                if (data.success && data.data.projects) {
+                const data = await response.json();
+                console.log('Projects loaded:', data);
+                
+                if (data.success && data.data && data.data.projects) {
                     const select = document.getElementById('projectSelect');
                     select.innerHTML = '<option value="">-- เลือกโปรเจค --</option>';
                     
@@ -512,6 +532,7 @@
                 }
             } catch (error) {
                 console.error('Error loading projects:', error);
+                alert('ไม่สามารถโหลดรายการโปรเจคได้');
             }
         }
 
@@ -519,14 +540,26 @@
             if (this.value) {
                 const option = this.options[this.selectedIndex];
                 selectedProject = JSON.parse(option.dataset.project);
+                
+                // แสดงส่วนสร้าง BRD
+                document.getElementById('noProjectWarning').classList.add('hidden');
+                document.getElementById('requirementsSection').classList.remove('hidden');
+                
+                // โหลดประวัติ
                 loadBRDHistory(selectedProject.project_id);
                 updateGenerateButton();
             } else {
                 selectedProject = null;
+                
+                // ซ่อนส่วนสร้าง BRD
+                document.getElementById('noProjectWarning').classList.remove('hidden');
+                document.getElementById('requirementsSection').classList.add('hidden');
+                
+                // แสดงคำเตือนในประวัติ
                 document.getElementById('historyContent').innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📋</div>
-                        <p>เลือกโปรเจคเพื่อดูประวัติ</p>
+                    <div class="warning-box">
+                        <div class="warning-box-icon">⚠️</div>
+                        <div style="font-weight: 600;">กรุณาเลือกโปรเจคก่อน</div>
                     </div>
                 `;
             }
@@ -558,9 +591,11 @@
                     method: 'POST',
                     body: formData
                 });
+                
                 const data = await response.json();
+                console.log('Project created:', data);
 
-                if (data.success && data.data.projects && data.data.projects.length > 0) {
+                if (data.success && data.data && data.data.projects && data.data.projects.length > 0) {
                     await loadProjects();
                     
                     const newProject = data.data.projects[0];
@@ -568,6 +603,10 @@
                     
                     const select = document.getElementById('projectSelect');
                     select.value = newProject.project_id;
+                    
+                    // แสดงส่วนสร้าง BRD
+                    document.getElementById('noProjectWarning').classList.add('hidden');
+                    document.getElementById('requirementsSection').classList.remove('hidden');
                     
                     cancelNewProject();
                     loadBRDHistory(newProject.project_id);
@@ -579,23 +618,16 @@
             }
         }
 
-        // Tab Functions
-        function switchTab(tab) {
-            const tabs = document.querySelectorAll('.tab');
-            tabs.forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
-
-            if (tab === 'file') {
-                document.getElementById('fileTab').classList.remove('hidden');
-                document.getElementById('urlTab').classList.add('hidden');
-            } else {
-                document.getElementById('fileTab').classList.add('hidden');
-                document.getElementById('urlTab').classList.remove('hidden');
+        // File Functions
+        function handleUploadClick() {
+            if (selectedProject) {
+                document.getElementById('fileInput').click();
             }
         }
 
-        // File Functions
         function handleFiles(files) {
+            if (!selectedProject) return;
+            
             const validExtensions = ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'];
             
             Array.from(files).forEach(file => {
@@ -648,6 +680,7 @@
 
         // URL Functions
         function addUrlField() {
+            if (!selectedProject) return;
             urls.push('');
             renderUrlList();
         }
@@ -694,10 +727,12 @@
                 const formData = new FormData();
                 formData.append('project_id', selectedProject.project_id);
 
+                // แนบไฟล์
                 selectedFiles.forEach(file => {
                     formData.append('requirement_files[]', file);
                 });
 
+                // แนบ URLs
                 const validUrls = urls.filter(url => url.trim() !== '');
                 if (validUrls.length > 0) {
                     formData.append('requirement_urls', JSON.stringify(validUrls));
@@ -707,18 +742,22 @@
                     method: 'POST',
                     body: formData
                 });
+                
                 const data = await response.json();
+                console.log('BRD created:', data);
 
-                if (Array.isArray(data) && data[0].success && data[0].data.brd) {
+                if (Array.isArray(data) && data.length > 0 && data[0].success && data[0].data && data[0].data.brd) {
                     generatedBRD = data[0].data.brd;
                     showSuccess(generatedBRD);
                     loadBRDHistory(selectedProject.project_id);
                     
-                    // Clear inputs
+                    // ล้างข้อมูล
                     selectedFiles = [];
                     urls = [''];
                     renderFileList();
                     renderUrlList();
+                } else {
+                    throw new Error('Invalid response format');
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -779,11 +818,13 @@
                     method: 'POST',
                     body: formData
                 });
+                
                 const data = await response.json();
+                console.log('BRD history loaded:', data);
 
                 const content = document.getElementById('historyContent');
                 
-                if (data.success && data.data.projects && data.data.projects.length > 0) {
+                if (data.success && data.data && data.data.projects && data.data.projects.length > 0) {
                     content.innerHTML = `
                         <div style="margin-bottom: 16px;">
                             <span class="badge">ทั้งหมด ${data.data.total} เอกสาร</span>
