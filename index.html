@@ -3,9 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BRD Generator</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>AI BRD Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #DC2626;
+            --primary-light: #EF4444;
+            --secondary: #F87171;
+            --accent: #FB7185;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #B91C1C;
+            --bg-main: #F8FAFC;
+            --bg-card: #FFFFFF;
+            --bg-input: #FEF2F2;
+            --border: #FEE2E2;
+            --text: #1E293B;
+            --text-muted: #64748B;
+            --shadow-sm: 0 1px 2px 0 rgba(220, 38, 38, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(220, 38, 38, 0.15);
+            --shadow-lg: 0 10px 15px -3px rgba(220, 38, 38, 0.2);
+        }
         * {
             margin: 0;
             padding: 0;
@@ -13,135 +31,279 @@
         }
 
         body {
-            font-family: 'Noto Sans Thai', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(-45deg, #ffa07a, #ff6b9d, #c94b4b, #ee5a6f, #ff4c65, #ff7e79, #f54291, #dc143c);
+            background-size: 400% 400%;
+            animation: gradientShift 25s ease infinite;
             min-height: 100vh;
-            padding: 20px;
+            padding: 32px 20px;
+            color: var(--text);
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.92) 0%, rgba(255, 240, 245, 0.85) 100%);
+            backdrop-filter: blur(100px);
+            z-index: 0;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            25% { background-position: 50% 75%; }
+            50% { background-position: 100% 50%; }
+            75% { background-position: 50% 25%; }
+            100% { background-position: 0% 50%; }
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
+            position: relative;
+            z-index: 1;
         }
 
         .header {
             text-align: center;
-            color: white;
-            margin-bottom: 30px;
+            margin-bottom: 48px;
+            background: linear-gradient(135deg, #FFB6C1 0%, #FFD4E5 15%, #E0BBE4 30%, #FFDFD3 45%, #C7CEEA 60%, #B5EAD7 75%, #FFDAC1 90%, #FFE5B4 100%);
+            padding: 48px 24px;
+            border-radius: 24px;
+            color: #2C3E50;
+            box-shadow: 0 10px 30px rgba(220, 38, 38, 0.3);
         }
 
         .header h1 {
-            font-size: 2.5rem;
+            font-size: 3.5rem;
             font-weight: 700;
-            margin-bottom: 10px;
+            margin-bottom: 16px;
+            letter-spacing: -2px;
+            line-height: 1.1;
+            color: #2C3E50;
         }
 
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
+        .header .subtitle {
+            font-size: 1.25rem;
+            margin-bottom: 24px;
+            font-weight: 400;
+            opacity: 0.85;
+            color: #34495E;
+        }
+
+        .ai-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 2px solid rgba(44, 62, 80, 0.2);
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            color: #2C3E50;
         }
 
         .main-grid {
             display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 20px;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 32px;
         }
 
         .card {
-            background: white;
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 32px;
+            border: 2px solid var(--border);
+            box-shadow: var(--shadow-md);
         }
 
         .card-header {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 2px solid #f0f0f0;
+            gap: 16px;
+            margin-bottom: 28px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--border);
         }
 
         .card-header h2 {
             font-size: 1.5rem;
             font-weight: 600;
-            color: #2d3748;
+            color: var(--text);
         }
 
         .icon {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 8px;
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-weight: 600;
+            font-size: 24px;
+        }
+
+        .card:nth-child(1) .icon {
+            background: linear-gradient(135deg, #FECACA, #FCA5A5);
+        }
+
+        .card:nth-child(2) .icon {
+            background: linear-gradient(135deg, #FED7D7, #FBB6CE);
+        }
+
+        .card:nth-child(3) .icon {
+            background: linear-gradient(135deg, #FCE7F3, #FBCFE8);
+        }
+
+        .card:nth-child(4) .icon {
+            background: linear-gradient(135deg, #FFE4E6, #FECDD3);
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .form-label {
             display: block;
             margin-bottom: 8px;
-            font-weight: 500;
-            color: #4a5568;
+            font-weight: 600;
+            color: var(--text);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        select, input[type="text"], input[type="url"] {
+        .select-wrapper {
+            position: relative;
+        }
+
+        select {
             width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
+            padding: 14px 40px 14px 16px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
             font-size: 1rem;
-            font-family: 'Noto Sans Thai', sans-serif;
-            transition: all 0.3s;
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg-input);
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
         }
 
-        select:focus, input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        select:disabled, input:disabled {
-            background: #f7fafc;
+        select:disabled {
+            opacity: 0.5;
             cursor: not-allowed;
+            background: #E2E8F0;
+        }
+
+        .select-wrapper::after {
+            content: '';
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 6px solid var(--text-muted);
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        select:hover:not(:disabled) {
+            border-color: var(--primary);
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        select option {
+            background: var(--bg-card);
+            color: var(--text);
+            padding: 12px;
+        }
+
+        input[type="text"],
+        input[type="url"],
+        textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg-input);
+            color: var(--text);
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
         }
 
         .flex-row {
             display: flex;
-            gap: 12px;
+            gap: 16px;
             align-items: flex-end;
         }
 
         .flex-row .form-group {
             flex: 1;
+            margin-bottom: 0;
         }
 
         .btn {
-            padding: 12px 24px;
+            padding: 14px 28px;
             border: none;
-            border-radius: 8px;
-            font-size: 1rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
             font-weight: 600;
-            font-family: 'Noto Sans Thai', sans-serif;
+            font-family: 'Space Grotesk', sans-serif;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #DC2626, #F87171);
             color: white;
+            box-shadow: 0 4px 14px rgba(220, 38, 38, 0.4);
         }
 
         .btn-primary:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 6px 20px rgba(220, 38, 38, 0.5);
+        }
+
+        .btn-primary:active:not(:disabled) {
+            transform: translateY(0);
         }
 
         .btn-primary:disabled {
@@ -150,90 +312,77 @@
         }
 
         .btn-secondary {
-            background: #48bb78;
-            color: white;
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
         }
 
         .btn-secondary:hover {
-            background: #38a169;
-        }
-
-        .btn-danger {
-            background: #f56565;
-            color: white;
-            padding: 8px 12px;
-        }
-
-        .btn-danger:hover {
-            background: #e53e3e;
+            background: rgba(79, 70, 229, 0.1);
         }
 
         .btn-outline {
-            background: white;
-            color: #667eea;
-            border: 2px solid #667eea;
+            background: transparent;
+            color: var(--text);
+            border: 2px solid var(--border);
         }
 
         .btn-outline:hover {
-            background: #667eea;
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-danger {
+            background: var(--danger);
             color: white;
+            padding: 10px 20px;
         }
 
-        .btn-warning {
-            background: #ed8936;
-            color: white;
-        }
-
-        .btn-warning:hover {
-            background: #dd6b20;
-        }
-
-        .btn-info {
-            background: #4299e1;
-            color: white;
-        }
-
-        .btn-info:hover {
-            background: #3182ce;
+        .btn-danger:hover {
+            background: #dc2626;
         }
 
         .upload-area {
-            border: 2px dashed #cbd5e0;
-            border-radius: 12px;
-            padding: 40px;
+            border: 2px dashed var(--border);
+            border-radius: 16px;
+            padding: 48px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s;
-            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            background: var(--bg-input);
         }
 
         .upload-area:hover:not(.disabled) {
-            border-color: #667eea;
-            background: #f7fafc;
-        }
-
-        .upload-area.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            background: #f7fafc;
+            border-color: var(--primary);
+            background: #FEE2E2;
         }
 
         .upload-area input {
             display: none;
         }
 
-        .file-list {
-            margin-bottom: 20px;
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.5;
         }
 
-        .file-item, .url-item {
+        .file-item,
+        .url-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px;
-            background: #f7fafc;
-            border-radius: 8px;
-            margin-bottom: 8px;
+            padding: 16px;
+            background: var(--bg-input);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border: 2px solid var(--border);
+            transition: all 0.2s ease;
+        }
+
+        .file-item:hover,
+        .url-item:hover {
+            border-color: var(--primary);
         }
 
         .file-info {
@@ -243,52 +392,181 @@
             flex: 1;
         }
 
+        .file-icon {
+            font-size: 24px;
+        }
+
+        .file-details {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .file-size {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
         .success-box {
-            background: #c6f6d5;
-            border: 2px solid #48bb78;
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 20px;
+            background: #ECFDF5;
+            border: 2px solid #10B981;
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 24px;
         }
 
         .success-box h3 {
-            color: #22543d;
+            color: var(--success);
             margin-bottom: 12px;
-            font-size: 1.2rem;
+            font-size: 1.25rem;
         }
 
         .success-box a {
-            color: #2b6cb0;
+            color: var(--primary);
             text-decoration: none;
-            font-weight: 500;
+            font-weight: 600;
         }
 
         .success-box a:hover {
             text-decoration: underline;
         }
 
+        .info-box {
+            background: #FEF3C7;
+            border: 2px solid var(--warning);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .info-box p {
+            color: var(--text);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 0;
+        }
+
+        .warning-box {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+        }
+
+        .warning-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: 'Space Grotesk', sans-serif;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab:hover:not(.active) {
+            color: var(--text);
+        }
+
         table {
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 16px;
+            border-collapse: separate;
+            border-spacing: 0 8px;
         }
 
         th {
-            background: #f7fafc;
-            padding: 12px;
+            background: var(--bg-input);
+            padding: 12px 16px;
             text-align: left;
             font-weight: 600;
-            color: #4a5568;
-            border-bottom: 2px solid #e2e8f0;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        th:first-child {
+            border-radius: 8px 0 0 8px;
+        }
+
+        th:last-child {
+            border-radius: 0 8px 8px 0;
         }
 
         td {
-            padding: 12px;
-            border-bottom: 1px solid #e2e8f0;
+            padding: 14px 16px;
+            background: var(--bg-input);
+            border: none;
         }
 
-        tr:hover {
-            background: #f7fafc;
+        tr td:first-child {
+            border-radius: 8px 0 0 8px;
+        }
+
+        tr td:last-child {
+            border-radius: 0 8px 8px 0;
+        }
+
+        tr:hover td {
+            background: #FEE2E2;
+        }
+
+        td a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        td a:hover {
+            text-decoration: underline;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 16px;
+            background: #FEE2E2;
+            color: var(--primary);
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border: 2px solid #FCA5A5;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-icon {
+            font-size: 3.5rem;
+            margin-bottom: 16px;
+            opacity: 0.3;
         }
 
         .loading-overlay {
@@ -297,7 +575,8 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.7);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -305,20 +584,22 @@
         }
 
         .loading-content {
-            background: white;
-            padding: 40px;
-            border-radius: 16px;
+            background: var(--bg-card);
+            padding: 48px;
+            border-radius: 24px;
             text-align: center;
+            border: 2px solid var(--border);
+            box-shadow: var(--shadow-lg);
         }
 
         .spinner {
-            width: 60px;
-            height: 60px;
-            border: 4px solid #e2e8f0;
-            border-top-color: #667eea;
+            width: 64px;
+            height: 64px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
             border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 24px;
         }
 
         @keyframes spin {
@@ -329,65 +610,44 @@
             display: none;
         }
 
-        .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            background: #667eea;
-            color: white;
-            border-radius: 12px;
-            font-size: 0.875rem;
-            font-weight: 600;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: #a0aec0;
-        }
-
-        .empty-state-icon {
-            font-size: 3rem;
-            margin-bottom: 12px;
-        }
-
-        .warning-box {
-            background: #fef5e7;
-            border: 2px solid #f39c12;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            color: #7d6608;
-        }
-
-        .warning-box-icon {
-            font-size: 3rem;
-            margin-bottom: 12px;
-        }
-
-        .section-divider {
-            height: 1px;
-            background: #e2e8f0;
-            margin: 24px 0;
-        }
-
         @media (max-width: 1024px) {
             .main-grid {
                 grid-template-columns: 1fr;
             }
+
+            .header h1 {
+                font-size: 2.5rem;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-main);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🚀 BRD Generator</h1>
-            <p>สร้างเอกสาร Business Requirements Document อัตโนมัติ</p>
+            <h1>AI BRD Generator</h1>
+            <p class="subtitle">สร้างเอกสาร Business Requirements Document ด้วยพลัง AI</p>
+            <span class="ai-badge">POWERED BY AI</span>
         </div>
 
         <div class="main-grid">
-            <!-- Left Column -->
             <div>
-                <!-- Project Selection Card -->
                 <div class="card">
                     <div class="card-header">
                         <div class="icon">📁</div>
@@ -398,11 +658,13 @@
                         <div class="flex-row">
                             <div class="form-group">
                                 <label class="form-label">โปรเจค</label>
-                                <select id="projectSelect">
-                                    <option value="">-- เลือกโปรเจค --</option>
-                                </select>
+                                <div class="select-wrapper">
+                                    <select id="projectSelect">
+                                        <option value="">-- เลือกโปรเจค --</option>
+                                    </select>
+                                </div>
                             </div>
-                            <button class="btn btn-secondary" onclick="showNewProjectForm()">+ สร้างโปรเจคใหม่</button>
+                            <button class="btn btn-secondary" onclick="showNewProjectForm()">+ สร้างใหม่</button>
                         </div>
                     </div>
 
@@ -412,111 +674,192 @@
                             <input type="text" id="newProjectName" placeholder="กรอกชื่อโปรเจค">
                         </div>
                         <div class="flex-row">
-                            <button class="btn btn-primary" onclick="createProject()">บันทึก</button>
-                            <button class="btn btn-outline" onclick="cancelNewProject()">ยกเลิก</button>
+                            <button class="btn btn-primary" onclick="createProject()" id="saveProjectBtn">บันทึก</button>
+                            <button class="btn btn-outline" onclick="cancelNewProject()" id="cancelProjectBtn">ยกเลิก</button>
+                        </div>
+                        
+                        <div id="projectCreateLoading" class="hidden" style="margin-top: 24px; text-align: center; padding: 32px; background: #EEF2FF; border-radius: 16px; border: 2px dashed var(--border);">
+                            <div style="display: inline-block; width: 48px; height: 48px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 16px;"></div>
+                            <div style="color: var(--text); font-weight: 600; margin-bottom: 8px;">กำลังสร้างโปรเจค...</div>
+                            <div style="color: var(--text-muted); font-size: 0.875rem;">กรุณารอสักครู่</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- BRD Generation Card -->
-                <div class="card" style="margin-top: 20px;">
+                <div class="card" style="margin-top: 32px;">
                     <div class="card-header">
-                        <div class="icon">📄</div>
+                        <div class="icon">🎯</div>
                         <h2>สร้างเอกสาร BRD</h2>
                     </div>
 
-                    <!-- Warning when no project selected -->
-                    <div id="noProjectWarning" class="warning-box">
-                        <div class="warning-box-icon">⚠️</div>
-                        <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 8px;">กรุณาเลือกโปรเจคก่อน</div>
-                        <div>คุณต้องเลือกโปรเจคก่อนจึงจะสามารถแนบไฟล์หรือสร้างเอกสาร BRD ได้</div>
+                    <div id="noProjectWarningBRD" class="warning-box">
+                        <div class="warning-icon">⚠️</div>
+                        <div style="font-weight: 600; font-size: 1.125rem; margin-bottom: 8px;">กรุณาเลือกโปรเจคก่อน</div>
+                        <div style="color: var(--text-muted);">คุณต้องเลือกโปรเจคก่อนจึงจะสามารถแนบไฟล์หรือสร้างเอกสาร BRD ได้</div>
                     </div>
 
-                    <div id="requirementsSection" class="hidden">
-                        <!-- File Upload Section -->
-                        <div class="form-group">
-                            <label class="form-label">📎 แนบไฟล์จากเครื่อง</label>
-                            <div class="upload-area" id="uploadArea" onclick="handleUploadClick()">
-                                <div style="font-size: 3rem; margin-bottom: 12px;">📤</div>
-                                <div style="font-weight: 600; margin-bottom: 8px;">คลิกเพื่อเลือกไฟล์</div>
-                                <div style="color: #718096; font-size: 0.9rem;">รองรับ: รูปภาพ, PDF, DOC, PPT, XLS</div>
-                                <input type="file" id="fileInput" multiple accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx" onchange="handleFiles(this.files)">
+                    <div id="requirementsSectionBRD" class="hidden">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+                            <div>
+                                <label class="form-label">แนบไฟล์จากเครื่อง</label>
+                                <div class="upload-area" onclick="handleUploadClick()">
+                                    <div class="upload-icon">📤</div>
+                                    <div style="font-weight: 600; margin-bottom: 8px;">คลิกเพื่อเลือกไฟล์</div>
+                                    <div style="color: var(--text-muted); font-size: 0.875rem;">PDF, DOC, PPT, XLS</div>
+                                    <input type="file" id="fileInput" multiple accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx" onchange="handleFiles(this.files)">
+                                </div>
+                                <div id="fileList"></div>
                             </div>
-                            <div id="fileList" class="file-list"></div>
+
+                            <div>
+                                <label class="form-label">วาง URL ลิงก์เอกสาร</label>
+                                <div id="urlList"></div>
+                                <button class="btn btn-outline" style="width: 100%; margin-top: 12px;" onclick="addUrlField()">+ เพิ่ม URL</button>
+                            </div>
                         </div>
 
-                        <div class="section-divider"></div>
+                        <div id="successBoxBRD" class="hidden"></div>
+                        <div id="suggestionsBoxBRD" class="hidden" style="background: #FEF3C7; border: 2px solid var(--warning); border-radius: 16px; padding: 20px; margin-top: 20px;">
+                            <h3 style="color: var(--warning); margin-bottom: 12px; font-size: 1.125rem;">💡 คำแนะนำเพิ่มเติม</h3>
+                            <p style="color: var(--text-muted); margin-bottom: 12px; font-size: 0.875rem;">ข้อมูล Requirement ยังขาดไป - คำถามเหล่านี้จะช่วยให้ BRD และ Wireframe สมบูรณ์มากขึ้น:</p>
+                            <div id="suggestionsList" style="max-height: 200px; overflow-y: auto;"></div>
+                        </div>
 
-                        <!-- URL Section -->
+                        <div style="margin-top: 24px;">
+                            <button class="btn btn-primary" style="width: 100%;" id="generateBtnBRD" onclick="generateBRD()" disabled>
+                                เริ่มวิเคราะห์ด้วย AI
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 32px;">
+                    <div class="card-header">
+                        <div class="icon">🎨</div>
+                        <h2>สร้าง Wireframe</h2>
+                    </div>
+
+                    <div id="noProjectWarningWF" class="warning-box">
+                        <div class="warning-icon">⚠️</div>
+                        <div style="font-weight: 600; font-size: 1.125rem; margin-bottom: 8px;">กรุณาเลือกโปรเจคก่อน</div>
+                        <div style="color: var(--text-muted);">คุณต้องเลือกโปรเจคก่อนจึงจะสามารถสร้าง Wireframe ได้</div>
+                    </div>
+
+                    <div id="wireframeSectionWF" class="hidden">
                         <div class="form-group">
-                            <label class="form-label">🔗 วาง URL ลิงก์เอกสาร</label>
-                            <div id="urlList"></div>
-                            <button class="btn btn-outline" style="width: 100%; margin-top: 12px;" onclick="addUrlField()">+ เพิ่ม URL</button>
+                            <label class="form-label">เลือกเอกสาร BRD</label>
+                            <div class="select-wrapper">
+                                <select id="brdSelect" onchange="loadWireframeVersions()">
+                                    <option value="">-- เลือกเอกสาร BRD --</option>
+                                </select>
+                            </div>
                         </div>
 
-                        <!-- Success Box -->
-                        <div id="successBox" class="hidden"></div>
+                        <div class="form-group">
+                            <label class="form-label">เลือก Version Wireframe ที่ต้องการอ้างอิง</label>
+                            <div class="select-wrapper">
+                                <select id="wireframeVersionSelect" disabled>
+                                    <option value="">ไม่อ้างอิง version ก่อนหน้า</option>
+                                </select>
+                            </div>
+                        </div>
 
-                        <!-- Action Buttons -->
-                        <div id="actionButtons" style="margin-top: 24px; display: flex; gap: 12px;">
-                            <button class="btn btn-primary" style="flex: 1;" id="generateBtn" onclick="generateBRD()" disabled>
-                                ⚡ เริ่มวิเคราะห์
+                        <div class="form-group">
+                            <label class="form-label">ข้อความเพิ่มเติม (ไม่บังคับ)</label>
+                            <textarea id="promptText" maxlength="1000" placeholder="ระบุข้อความเพิ่มเติม เพื่อให้ wireframe สมบูรณ์ขึ้น"></textarea>
+                            <div style="text-align: right; font-size: 0.875rem; color: var(--text-muted); margin-top: 8px;">
+                                <span id="charCount">0</span>/1000 ตัวอักษร
+                            </div>
+                        </div>
+
+                        <div id="successBoxWF" class="hidden"></div>
+
+                        <div style="margin-top: 24px;">
+                            <button class="btn btn-primary" style="width: 100%;" id="generateWireframeBtn" onclick="generateWireframe()" disabled>
+                                สร้าง Wireframe
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Right Column - History -->
             <div class="card">
                 <div class="card-header">
                     <div class="icon">📊</div>
-                    <h2>ประวัติการสร้าง BRD</h2>
+                    <h2>ประวัติการสร้าง</h2>
                 </div>
-                <div id="historyContent">
-                    <div class="warning-box">
-                        <div class="warning-box-icon">⚠️</div>
-                        <div style="font-weight: 600;">กรุณาเลือกโปรเจคก่อน</div>
+
+                <div id="noProjectWarningHistory" class="warning-box">
+                    <div class="warning-icon">⚠️</div>
+                    <div style="font-weight: 600;">กรุณาเลือกโปรเจคก่อน</div>
+                </div>
+
+                <div id="historySection" class="hidden">
+                    <div class="tabs">
+                        <button class="tab active" onclick="switchHistoryTab('brd')">BRD</button>
+                        <button class="tab" onclick="switchHistoryTab('wireframe')">Wireframe</button>
                     </div>
+
+                    <div id="brdHistory"></div>
+                    <div id="wireframeHistory" class="hidden"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Loading Overlay -->
     <div id="loadingOverlay" class="loading-overlay hidden">
         <div class="loading-content">
             <div class="spinner"></div>
-            <h3 style="margin-bottom: 8px;">กำลังสร้าง BRD</h3>
-            <p style="color: #718096;">กรุณารอสักครู่...</p>
+            <h3 style="margin-bottom: 12px; color: var(--text); font-size: 1.5rem;" id="loadingText">กำลังประมวลผล</h3>
+            <p style="color: var(--text-muted);">กรุณารอสักครู่...</p>
         </div>
     </div>
 
     <script>
         const API_ENDPOINT = 'https://n8nfordevsh.sh-pxmer.co/webhook';
         let selectedFiles = [];
-        let urls = [''];
+        let urls = [];
         let selectedProject = null;
-        let generatedBRD = null;
+        let brdList = [];
+        let wireframeList = [];
 
-        // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             loadProjects();
             addUrlField();
+            BRDStatus();
+            
+            document.getElementById('promptText').addEventListener('input', function() {
+                document.getElementById('charCount').textContent = this.value.length;
+            });
         });
 
-        // Project Functions
+        function resetAllSections() {
+            selectedFiles = [];
+            urls = [''];
+            renderFileList();
+            renderUrlList();
+            
+            document.getElementById('successBoxBRD').classList.add('hidden');
+            document.getElementById('successBoxWF').classList.add('hidden');
+            document.getElementById('suggestionsBoxBRD').classList.add('hidden');
+            
+            document.getElementById('brdSelect').value = '';
+            document.getElementById('wireframeVersionSelect').innerHTML = '<option value="">ไม่อ้างอิง version ก่อนหน้า</option>';
+            
+            document.getElementById('promptText').value = '';
+            document.getElementById('charCount').textContent = '0';
+            
+            updateGenerateButton();
+            updateWireframeButton();
+            
+            document.getElementById('brdHistory').innerHTML = '';
+            document.getElementById('wireframeHistory').innerHTML = '';
+        }
+
         async function loadProjects() {
             try {
-                const response = await fetch(`${API_ENDPOINT}/project-list`, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
-                
+                const response = await fetch(`${API_ENDPOINT}/project-list`);
                 const data = await response.json();
-                console.log('Projects loaded:', data);
                 
                 if (data.success && data.data && data.data.projects) {
                     const select = document.getElementById('projectSelect');
@@ -531,37 +874,41 @@
                     });
                 }
             } catch (error) {
-                console.error('Error loading projects:', error);
+                console.error('Error:', error);
                 alert('ไม่สามารถโหลดรายการโปรเจคได้');
             }
         }
 
         document.getElementById('projectSelect').addEventListener('change', function() {
+            resetAllSections();
+            
             if (this.value) {
                 const option = this.options[this.selectedIndex];
                 selectedProject = JSON.parse(option.dataset.project);
                 
-                // แสดงส่วนสร้าง BRD
-                document.getElementById('noProjectWarning').classList.add('hidden');
-                document.getElementById('requirementsSection').classList.remove('hidden');
+                document.getElementById('noProjectWarningBRD').classList.add('hidden');
+                document.getElementById('requirementsSectionBRD').classList.remove('hidden');
                 
-                // โหลดประวัติ
-                loadBRDHistory(selectedProject.project_id);
-                updateGenerateButton();
+                document.getElementById('noProjectWarningWF').classList.add('hidden');
+                document.getElementById('wireframeSectionWF').classList.remove('hidden');
+                
+                document.getElementById('noProjectWarningHistory').classList.add('hidden');
+                document.getElementById('historySection').classList.remove('hidden');
+                
+                loadBRDList();
+                loadBRDHistory();
+                loadWireframeHistory();
             } else {
                 selectedProject = null;
                 
-                // ซ่อนส่วนสร้าง BRD
-                document.getElementById('noProjectWarning').classList.remove('hidden');
-                document.getElementById('requirementsSection').classList.add('hidden');
+                document.getElementById('noProjectWarningBRD').classList.remove('hidden');
+                document.getElementById('requirementsSectionBRD').classList.add('hidden');
                 
-                // แสดงคำเตือนในประวัติ
-                document.getElementById('historyContent').innerHTML = `
-                    <div class="warning-box">
-                        <div class="warning-box-icon">⚠️</div>
-                        <div style="font-weight: 600;">กรุณาเลือกโปรเจคก่อน</div>
-                    </div>
-                `;
+                document.getElementById('noProjectWarningWF').classList.remove('hidden');
+                document.getElementById('wireframeSectionWF').classList.add('hidden');
+                
+                document.getElementById('noProjectWarningHistory').classList.remove('hidden');
+                document.getElementById('historySection').classList.add('hidden');
             }
         });
 
@@ -574,6 +921,11 @@
             document.getElementById('projectSelectMode').classList.remove('hidden');
             document.getElementById('projectCreateMode').classList.add('hidden');
             document.getElementById('newProjectName').value = '';
+            
+            document.getElementById('projectCreateLoading').classList.add('hidden');
+            document.getElementById('saveProjectBtn').disabled = false;
+            document.getElementById('cancelProjectBtn').disabled = false;
+            document.getElementById('newProjectName').disabled = false;
         }
 
         async function createProject() {
@@ -583,6 +935,11 @@
                 return;
             }
 
+            document.getElementById('projectCreateLoading').classList.remove('hidden');
+            document.getElementById('saveProjectBtn').disabled = true;
+            document.getElementById('cancelProjectBtn').disabled = true;
+            document.getElementById('newProjectName').disabled = true;
+
             try {
                 const formData = new FormData();
                 formData.append('project_name', name);
@@ -591,34 +948,46 @@
                     method: 'POST',
                     body: formData
                 });
-                
                 const data = await response.json();
-                console.log('Project created:', data);
 
-                if (data.success && data.data && data.data.projects && data.data.projects.length > 0) {
-                    await loadProjects();
-                    
-                    const newProject = data.data.projects[0];
-                    selectedProject = newProject;
+                if (data.success && data.data) {
+                    const newProject = data.data;
                     
                     const select = document.getElementById('projectSelect');
-                    select.value = newProject.project_id;
-                    
-                    // แสดงส่วนสร้าง BRD
-                    document.getElementById('noProjectWarning').classList.add('hidden');
-                    document.getElementById('requirementsSection').classList.remove('hidden');
+                    const option = document.createElement('option');
+                    option.value = newProject.project_id;
+                    option.textContent = newProject.project_name;
+                    option.dataset.project = JSON.stringify(newProject);
+                    select.appendChild(option);
                     
                     cancelNewProject();
-                    loadBRDHistory(newProject.project_id);
-                    updateGenerateButton();
+                    resetAllSections();
+                    
+                    select.value = newProject.project_id;
+                    selectedProject = newProject;
+                    
+                    document.getElementById('noProjectWarningBRD').classList.add('hidden');
+                    document.getElementById('requirementsSectionBRD').classList.remove('hidden');
+                    document.getElementById('noProjectWarningWF').classList.add('hidden');
+                    document.getElementById('wireframeSectionWF').classList.remove('hidden');
+                    document.getElementById('noProjectWarningHistory').classList.add('hidden');
+                    document.getElementById('historySection').classList.remove('hidden');
+                    
+                    loadBRDList();
+                    loadBRDHistory();
+                    loadWireframeHistory();
                 }
             } catch (error) {
-                console.error('Error creating project:', error);
+                console.error('Error:', error);
                 alert('ไม่สามารถสร้างโปรเจคได้');
+                
+                document.getElementById('projectCreateLoading').classList.add('hidden');
+                document.getElementById('saveProjectBtn').disabled = false;
+                document.getElementById('cancelProjectBtn').disabled = false;
+                document.getElementById('newProjectName').disabled = false;
             }
         }
 
-        // File Functions
         function handleUploadClick() {
             if (selectedProject) {
                 document.getElementById('fileInput').click();
@@ -651,10 +1020,10 @@
             list.innerHTML = selectedFiles.map((file, index) => `
                 <div class="file-item">
                     <div class="file-info">
-                        <span style="font-size: 1.5rem;">${getFileIcon(file.name)}</span>
-                        <div>
-                            <div style="font-weight: 500;">${file.name}</div>
-                            <div style="font-size: 0.875rem; color: #718096;">${(file.size / 1024).toFixed(1)} KB</div>
+                        <span class="file-icon">${getFileIcon(file.name)}</span>
+                        <div class="file-details">
+                            <div class="file-name">${file.name}</div>
+                            <div class="file-size">${(file.size / 1024).toFixed(1)} KB</div>
                         </div>
                     </div>
                     <button class="btn btn-danger" onclick="removeFile(${index})">ลบ</button>
@@ -678,7 +1047,6 @@
             return '📁';
         }
 
-        // URL Functions
         function addUrlField() {
             if (!selectedProject) return;
             urls.push('');
@@ -690,8 +1058,7 @@
             list.innerHTML = urls.map((url, index) => `
                 <div class="url-item">
                     <input type="url" placeholder="https://example.com/document" value="${url}" 
-                           onchange="updateUrl(${index}, this.value)"
-                           style="flex: 1; margin: 0;">
+                           onchange="updateUrl(${index}, this.value)" style="flex: 1; margin: 0;">
                     ${urls.length > 1 ? `<button class="btn btn-danger" onclick="removeUrl(${index})">ลบ</button>` : ''}
                 </div>
             `).join('');
@@ -709,30 +1076,28 @@
             updateGenerateButton();
         }
 
-        // Generate BRD
         function updateGenerateButton() {
             const hasFiles = selectedFiles.length > 0;
             const hasUrls = urls.some(url => url.trim() !== '');
             const hasProject = selectedProject !== null;
             
-            document.getElementById('generateBtn').disabled = !(hasProject && (hasFiles || hasUrls));
+            document.getElementById('generateBtnBRD').disabled = !(hasProject && (hasFiles || hasUrls));
         }
 
         async function generateBRD() {
             if (!selectedProject) return;
 
             document.getElementById('loadingOverlay').classList.remove('hidden');
+            document.getElementById('loadingText').textContent = 'กำลังสร้าง BRD ด้วย AI';
 
             try {
                 const formData = new FormData();
                 formData.append('project_id', selectedProject.project_id);
 
-                // แนบไฟล์
                 selectedFiles.forEach(file => {
                     formData.append('requirement_files[]', file);
                 });
 
-                // แนบ URLs
                 const validUrls = urls.filter(url => url.trim() !== '');
                 if (validUrls.length > 0) {
                     formData.append('requirement_urls', JSON.stringify(validUrls));
@@ -742,87 +1107,216 @@
                     method: 'POST',
                     body: formData
                 });
-                
                 const data = await response.json();
-                console.log('BRD created:', data);
 
-                if (Array.isArray(data) && data.length > 0 && data[0].success && data[0].data && data[0].data.brd) {
-                    generatedBRD = data[0].data.brd;
-                    showSuccess(generatedBRD);
-                    loadBRDHistory(selectedProject.project_id);
+                if (data && data.success && data.data && data.data.brd) {
+                    const result = data.data;
+                    showSuccessBRD(result.brd, result.suggest_requirement || []);
+                    loadBRDHistory();
+                    loadBRDList();
                     
-                    // ล้างข้อมูล
                     selectedFiles = [];
                     urls = [''];
                     renderFileList();
                     renderUrlList();
                 } else {
-                    throw new Error('Invalid response format');
+                    throw new Error('Invalid response');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('ไม่สามารถสร้าง BRD ได้ กรุณาลองใหม่');
+                alert('ไม่สามารถสร้าง BRD ได้');
             } finally {
                 document.getElementById('loadingOverlay').classList.add('hidden');
             }
         }
 
-        function showSuccess(brd) {
-            const box = document.getElementById('successBox');
+        function showSuccessBRD(brd, suggestions) {
+            const box = document.getElementById('successBoxBRD');
             box.innerHTML = `
-                <h3>✅ สร้าง BRD สำเร็จ!</h3>
+                <h3>สร้าง BRD สำเร็จ</h3>
                 <div style="margin-bottom: 12px; font-weight: 500;">${brd.file_name}</div>
-                <a href="${brd.file_url}" target="_blank">🔗 เปิดดูเอกสาร BRD</a>
+                <a href="${brd.file_url}" target="_blank">เปิดดูเอกสาร BRD</a>
             `;
             box.classList.remove('hidden');
-
-            const actionButtons = document.getElementById('actionButtons');
-            actionButtons.innerHTML = `
-                <button class="btn btn-warning" style="flex: 1;" onclick="resetGeneration()">
-                    🔄 วิเคราะห์ใหม่
-                </button>
-                <button class="btn btn-info" style="flex: 1;" onclick="goToWireframe()">
-                    🎨 สร้าง Wireframe
-                </button>
-            `;
-        }
-
-        function resetGeneration() {
-            generatedBRD = null;
-            document.getElementById('successBox').classList.add('hidden');
             
-            const actionButtons = document.getElementById('actionButtons');
-            actionButtons.innerHTML = `
-                <button class="btn btn-primary" style="flex: 1;" id="generateBtn" onclick="generateBRD()" disabled>
-                    ⚡ เริ่มวิเคราะห์
-                </button>
-            `;
-            
-            updateGenerateButton();
-        }
-
-        function goToWireframe() {
-            if (generatedBRD && selectedProject) {
-                const url = `/wireframe?project_id=${selectedProject.project_id}&brd_id=${generatedBRD.brd_version_id}`;
-                window.open(url, '_blank');
+            if (suggestions && suggestions.length > 0) {
+                const suggestBox = document.getElementById('suggestionsBoxBRD');
+                const suggestionsList = document.getElementById('suggestionsList');
+                
+                suggestionsList.innerHTML = suggestions.map((suggestion, index) => `
+                    <div style="padding: 12px; margin-bottom: 8px; background: var(--bg-input); border-radius: 8px; border-left: 3px solid var(--warning);">
+                        <span style="color: var(--warning); font-weight: 600; margin-right: 8px;">${index + 1}.</span>
+                        <span style="color: var(--text-muted); font-size: 0.875rem;">${suggestion}</span>
+                    </div>
+                `).join('');
+                
+                suggestBox.classList.remove('hidden');
             }
         }
 
-        // History Functions
-        async function loadBRDHistory(projectId) {
+        async function loadBRDList() {
+            if (!selectedProject) return;
+            
             try {
                 const formData = new FormData();
-                formData.append('project_id', projectId);
+                formData.append('project_id', selectedProject.project_id);
 
                 const response = await fetch(`${API_ENDPOINT}/brd-list`, {
                     method: 'POST',
                     body: formData
                 });
-                
                 const data = await response.json();
-                console.log('BRD history loaded:', data);
 
-                const content = document.getElementById('historyContent');
+                if (data.success && data.data && data.data.projects) {
+                    brdList = data.data.projects;
+                    
+                    const select = document.getElementById('brdSelect');
+                    select.innerHTML = '<option value="">-- เลือกเอกสาร BRD --</option>';
+                    
+                    brdList.forEach(brd => {
+                        const option = document.createElement('option');
+                        option.value = brd.brd_version_id;
+                        option.textContent = brd.file_name;
+                        option.dataset.brd = JSON.stringify(brd);
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading BRD list:', error);
+            }
+        }
+
+        async function loadWireframeVersions() {
+            const brdSelect = document.getElementById('brdSelect');
+            const wireframeSelect = document.getElementById('wireframeVersionSelect');
+            
+            wireframeSelect.innerHTML = '<option value="">ไม่อ้างอิง version ก่อนหน้า</option>';
+            
+            if (!brdSelect.value || !selectedProject) {
+                updateWireframeButton();
+                return;
+            }
+
+            try {
+                const formData = new FormData();
+                formData.append('project_id', selectedProject.project_id);
+                formData.append('brd_version_id', brdSelect.value);
+
+                const response = await fetch(`${API_ENDPOINT}/wireframe-list`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                console.log('Wireframe versions:', data);
+
+                if (data.success && data.data && data.data.wireframes) {
+                    // เรียงจากเวอร์ชันล่าสุดไปเก่าสุด
+                    const sortedWireframes = data.data.wireframes.sort((a, b) => b.version_number - a.version_number);
+                    
+                    sortedWireframes.forEach(wf => {
+                        const option = document.createElement('option');
+                        option.value = wf.wireframe_version_id; // ใช้ wireframe_version_id เป็น value
+                        option.textContent = `V.${wf.version_number}`;
+                        option.dataset.wireframe = JSON.stringify(wf);
+                        wireframeSelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading wireframe versions:', error);
+            }
+            
+            updateWireframeButton();
+        }
+
+        function updateWireframeButton() {
+            const brdSelected = document.getElementById('brdSelect').value !== '';
+            document.getElementById('generateWireframeBtn').disabled = !brdSelected;
+        }
+
+        async function generateWireframe() {
+    const brdVersionId = document.getElementById('brdSelect').value;
+    const wireframeVersionId = document.getElementById('wireframeVersionSelect').value; // เปลี่ยนชื่อตัวแปรให้ชัดเจน
+    const promptText = document.getElementById('promptText').value.trim();
+
+    if (!selectedProject || !brdVersionId) return;
+
+    document.getElementById('loadingOverlay').classList.remove('hidden');
+    document.getElementById('loadingText').textContent = 'กำลังสร้าง Wireframe ด้วย AI (อาจใช้เวลา 2-5 นาที)';
+
+    try {
+        const formData = new FormData();
+        formData.append('project_id', selectedProject.project_id);
+        formData.append('brd_version_id', brdVersionId);
+        
+        if (wireframeVersionId) {
+            formData.append('html_version_id', wireframeVersionId); // ส่ง wireframe_version_id เป็น html_version_id
+        }
+        
+        if (promptText) {
+            formData.append('prompt_text', promptText);
+        }
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 300000);
+
+        const response = await fetch(`${API_ENDPOINT}/create-wireframe`, {
+            method: 'POST',
+            body: formData,
+            signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        const data = await response.json();
+        console.log('Wireframe created:', data);
+
+        if (data.success && data.data) {
+            showSuccessWireframe(data.data);
+            loadWireframeHistory();
+            
+            document.getElementById('brdSelect').value = '';
+            document.getElementById('wireframeVersionSelect').innerHTML = '<option value="">ไม่อ้างอิง version ก่อนหน้า</option>';
+            document.getElementById('promptText').value = '';
+            document.getElementById('charCount').textContent = '0';
+            updateWireframeButton();
+        } else {
+            throw new Error('Invalid response');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        if (error.name === 'AbortError') {
+            alert('การสร้าง Wireframe ใช้เวลานานเกินไป กรุณาลองใหม่อีกครั้ง');
+        } else {
+            alert('ไม่สามารถสร้าง Wireframe ได้');
+        }
+    } finally {
+        document.getElementById('loadingOverlay').classList.add('hidden');
+    }
+}
+
+        function showSuccessWireframe(wireframe) {
+            const box = document.getElementById('successBoxWF');
+            box.innerHTML = `
+                <h3>สร้าง Wireframe สำเร็จ</h3>
+                <div style="margin-bottom: 12px; font-weight: 500;">${wireframe.file_name}</div>
+                <a href="${wireframe.wireframe_url}" target="_blank">เปิดดู Wireframe</a>
+            `;
+            box.classList.remove('hidden');
+        }
+
+        async function loadBRDHistory() {
+            if (!selectedProject) return;
+            
+            try {
+                const formData = new FormData();
+                formData.append('project_id', selectedProject.project_id);
+
+                const response = await fetch(`${API_ENDPOINT}/brd-list`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                const content = document.getElementById('brdHistory');
                 
                 if (data.success && data.data && data.data.projects && data.data.projects.length > 0) {
                     content.innerHTML = `
@@ -833,8 +1327,10 @@
                             <thead>
                                 <tr>
                                     <th>เวอร์ชัน</th>
-                                    <th>ลิงก์เอกสาร</th>
+                                    <th>ลิงก์</th>
+                                    <th>สถานะ</th>
                                     <th>วันที่สร้าง</th>
+                                    <th>วันที่อัพเดท</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -842,22 +1338,86 @@
                                     <tr>
                                         <td><strong>V.${brd.version_number}</strong></td>
                                         <td><a href="${brd.file_url}" target="_blank">เปิดดู</a></td>
+                                        <td><strong>V.${brd.status}</strong></td>
                                         <td>${formatDate(brd.created_date)}</td>
+                                        <td>${formatDate(brd.updated_date)}</td>
                                     </tr>
                                 `).join('')}
                             </tbody>
                         </table>
                     `;
                 } else {
-                    content.innerHTML = `
-                        <div class="empty-state">
-                            <div class="empty-state-icon">📋</div>
-                            <p>ยังไม่มีประวัติการสร้าง BRD</p>
-                        </div>
-                    `;
+                    content.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><p>ยังไม่มีประวัติ BRD</p></div>';
                 }
             } catch (error) {
-                console.error('Error loading history:', error);
+                console.error('Error loading BRD history:', error);
+            }
+        }
+
+        async function loadWireframeHistory() {
+            if (!selectedProject) return;
+            
+            try {
+                const formData = new FormData();
+                formData.append('project_id', selectedProject.project_id);
+
+                const response = await fetch(`${API_ENDPOINT}/wireframe-list`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                const content = document.getElementById('wireframeHistory');
+                
+                if (data.success && data.data && data.data.wireframes && data.data.wireframes.length > 0) {
+                    content.innerHTML = `
+                        <div style="margin-bottom: 16px;">
+                            <span class="badge">ทั้งหมด ${data.data.total} เอกสาร</span>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>เวอร์ชัน</th>
+                                    <th>เวอร์ชันอ้างอิง</th>
+                                    <th>ลิงก์</th>
+                                    <th>สถานะ</th>
+                                    <th>วันที่สร้าง</th>
+                                    <th>วันที่อัพเดท</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.data.wireframes.map(wf => `
+                                    <tr>
+                                        <td><strong>V.${wf.version_number}</strong></td>
+                                        <td><strong>V.${wf.ref_version_number}</strong></td>
+                                        <td><a href="${wf.wireframe_url}" target="_blank">เปิดดู</a></td>
+                                        <td><strong>Pending</strong></td>
+                                        <td>${formatDate(wf.created_date)}</td>
+                                        <td>${formatDate(wf.updated_date)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                } else {
+                    content.innerHTML = '<div class="empty-state"><div class="empty-icon">🎨</div><p>ยังไม่มีประวัติ Wireframe</p></div>';
+                }
+            } catch (error) {
+                console.error('Error loading wireframe history:', error);
+            }
+        }
+
+        function switchHistoryTab(tab) {
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (tab === 'brd') {
+                document.getElementById('brdHistory').classList.remove('hidden');
+                document.getElementById('wireframeHistory').classList.add('hidden');
+            } else {
+                document.getElementById('brdHistory').classList.add('hidden');
+                document.getElementById('wireframeHistory').classList.remove('hidden');
             }
         }
 
@@ -871,6 +1431,32 @@
                 minute: '2-digit'
             });
         }
+
+        function BRDStatus() {
+            const [status, setStatus] = useState({});
+            
+            useEffect(() => {
+                // Poll ทุก 5 วินาที
+                const interval = setInterval(async () => {
+                const res = await fetch('/api/update-status');
+                const data = await res.json();
+                setStatus(data);
+                }, 5000);
+                
+                return () => clearInterval(interval);
+            }, []);
+            
+            console.log("BRDStatus : "+status);
+            // return (
+            //     <div>
+            //     {Object.entries(status).map(([id, status]) => (
+            //         <div key={id}>
+            //         BRD {id}: {status}
+            //         </div>
+            //     ))}
+            //     </div>
+            // );
+            }
     </script>
 </body>
 </html>
