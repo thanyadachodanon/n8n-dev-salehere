@@ -111,7 +111,7 @@
 
         .main-grid {
             display: grid;
-            grid-template-columns: 1.5fr 1fr;
+            grid-template-columns: 1fr 1fr;
             gap: 32px;
         }
 
@@ -244,7 +244,7 @@
             border-radius: 12px;
             font-size: 1rem;
             font-family: 'Space Grotesk', sans-serif;
-            background: var(--bg-input);
+            background: #FFFFFF;
             color: var(--text);
             transition: all 0.3s ease;
         }
@@ -345,7 +345,7 @@
         .upload-area {
             border: 2px dashed var(--border);
             border-radius: 16px;
-            padding: 48px;
+            padding: 32px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -362,20 +362,36 @@
         }
 
         .upload-icon {
-            font-size: 3rem;
-            margin-bottom: 16px;
+            font-size: 2.5rem;
+            margin-bottom: 12px;
             opacity: 0.5;
         }
 
-        .file-item,
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background: transparent;
+            border-radius: 0;
+            margin-bottom: 0;
+            border: none;
+            border-bottom: 1px solid var(--border);
+            transition: all 0.2s ease;
+        }
+
+        .file-item:last-child {
+            border-bottom: none;
+        }
+
         .url-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 16px;
+            padding: 12px 14px;
             background: var(--bg-input);
-            border-radius: 12px;
-            margin-bottom: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
             border: 2px solid var(--border);
             transition: all 0.2s ease;
         }
@@ -388,26 +404,53 @@
         .file-info {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             flex: 1;
-        }
-
-        .file-icon {
-            font-size: 24px;
+            min-width: 0;
+            overflow: hidden;
         }
 
         .file-details {
             flex: 1;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .file-icon {
+            font-size: 20px;
         }
 
         .file-name {
             font-weight: 500;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
+            font-size: 0.9rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 100%;
         }
 
         .file-size {
-            font-size: 0.875rem;
+            font-size: 0.8rem;
             color: var(--text-muted);
+        }
+
+        .file-list-container {
+            margin-top: 12px;
+            background: var(--bg-input);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 8px;
+            max-width: 100%;
+            overflow: hidden;
+        }
+
+        .file-list-container:empty {
+            display: none;
+        }
+
+        .file-item:hover {
+            background: #FEE2E2;
         }
 
         .success-box {
@@ -420,14 +463,39 @@
 
         .success-box h3 {
             color: var(--success);
-            margin-bottom: 12px;
+            margin-bottom: 16px;
             font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .success-box .version-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #10B981, #34D399);
+            color: white;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .success-box .info-text {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            line-height: 1.6;
+            margin-bottom: 16px;
         }
 
         .success-box a {
             color: var(--primary);
             text-decoration: none;
             font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .success-box a:hover {
@@ -610,6 +678,19 @@
             display: none;
         }
 
+        .brd-section-grid {
+            display: grid;
+            grid-template-columns: 40% 60%;
+            gap: 24px;
+            margin-bottom: 24px;
+            align-items: start;
+        }
+
+        .brd-section-grid > div {
+            min-width: 0;
+            overflow: hidden;
+        }
+
         @media (max-width: 1024px) {
             .main-grid {
                 grid-template-columns: 1fr;
@@ -617,6 +698,10 @@
 
             .header h1 {
                 font-size: 2.5rem;
+            }
+
+            .brd-section-grid {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -635,6 +720,42 @@
 
         ::-webkit-scrollbar-thumb:hover {
             background: var(--primary);
+        }
+        .suggest-cell {
+            display: block;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            cursor: pointer;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .suggest-cell:hover {
+            color: var(--primary);
+        }
+
+        .suggest-tooltip {
+            position: fixed;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: var(--shadow-lg);
+            white-space: pre-wrap;
+            max-width: 400px;
+            z-index: 10000;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: var(--text);
+            pointer-events: auto;
+            user-select: text;
+            cursor: text;
+        }
+
+        table td {
+            position: relative;
         }
     </style>
 </head>
@@ -699,16 +820,16 @@
                     </div>
 
                     <div id="requirementsSectionBRD" class="hidden">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+                        <div class="brd-section-grid">
                             <div>
                                 <label class="form-label">แนบไฟล์จากเครื่อง</label>
                                 <div class="upload-area" onclick="handleUploadClick()">
                                     <div class="upload-icon">📤</div>
-                                    <div style="font-weight: 600; margin-bottom: 8px;">คลิกเพื่อเลือกไฟล์</div>
-                                    <div style="color: var(--text-muted); font-size: 0.875rem;">PDF, DOC, PPT, XLS</div>
+                                    <div style="font-weight: 600; margin-bottom: 6px; font-size: 0.95rem;">คลิกเพื่อเลือกไฟล์</div>
+                                    <div style="color: var(--text-muted); font-size: 0.8rem;">PDF, DOC, PPT, XLS</div>
                                     <input type="file" id="fileInput" multiple accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx" onchange="handleFiles(this.files)">
                                 </div>
-                                <div id="fileList"></div>
+                                <div id="fileList" class="file-list-container"></div>
                             </div>
 
                             <div>
@@ -795,9 +916,14 @@
                 </div>
 
                 <div id="historySection" class="hidden">
-                    <div class="tabs">
-                        <button class="tab active" onclick="switchHistoryTab('brd')">BRD</button>
-                        <button class="tab" onclick="switchHistoryTab('wireframe')">Wireframe</button>
+                    <div class="tabs" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; gap: 8px;">
+                            <button class="tab active" onclick="switchHistoryTab('brd')">BRD</button>
+                            <button class="tab" onclick="switchHistoryTab('wireframe')">Wireframe</button>
+                        </div>
+                        <button class="btn btn-outline" onclick="refreshHistory()" style="padding: 8px 16px; font-size: 0.875rem; display: flex; align-items: center; gap: 6px;">
+                            🔄 Refresh
+                        </button>
                     </div>
 
                     <div id="brdHistory"></div>
@@ -826,12 +952,16 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadProjects();
             addUrlField();
-            BRDStatus();
             
             document.getElementById('promptText').addEventListener('input', function() {
                 document.getElementById('charCount').textContent = this.value.length;
             });
         });
+
+        function getURLParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
 
         function resetAllSections() {
             selectedFiles = [];
@@ -857,27 +987,36 @@
         }
 
         async function loadProjects() {
-            try {
-                const response = await fetch(`${API_ENDPOINT}/project-list`);
-                const data = await response.json();
+        try {
+            const response = await fetch(`${API_ENDPOINT}/project-list`);
+            const data = await response.json();
+            
+            if (data.success && data.data && data.data.projects) {
+                const select = document.getElementById('projectSelect');
+                select.innerHTML = '<option value="">-- เลือกโปรเจค --</option>';
                 
-                if (data.success && data.data && data.data.projects) {
-                    const select = document.getElementById('projectSelect');
-                    select.innerHTML = '<option value="">-- เลือกโปรเจค --</option>';
-                    
-                    data.data.projects.forEach(project => {
-                        const option = document.createElement('option');
-                        option.value = project.project_id;
-                        option.textContent = project.project_name;
-                        option.dataset.project = JSON.stringify(project);
-                        select.appendChild(option);
-                    });
+                data.data.projects.forEach(project => {
+                    const option = document.createElement('option');
+                    option.value = project.project_id;
+                    option.textContent = project.project_name;
+                    option.dataset.project = JSON.stringify(project);
+                    select.appendChild(option);
+                });
+                
+                // Auto-select project if project_id parameter exists
+                const projectIdFromUrl = getURLParameter('project_id');
+                if (projectIdFromUrl) {
+                    select.value = projectIdFromUrl;
+                    // Trigger change event to load project data
+                    const changeEvent = new Event('change');
+                    select.dispatchEvent(changeEvent);
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('ไม่สามารถโหลดรายการโปรเจคได้');
             }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('ไม่สามารถโหลดรายการโปรเจคได้');
         }
+    }
 
         document.getElementById('projectSelect').addEventListener('change', function() {
             resetAllSections();
@@ -1022,11 +1161,11 @@
                     <div class="file-info">
                         <span class="file-icon">${getFileIcon(file.name)}</span>
                         <div class="file-details">
-                            <div class="file-name">${file.name}</div>
+                            <div class="file-name" title="${file.name}">${file.name}</div>
                             <div class="file-size">${(file.size / 1024).toFixed(1)} KB</div>
                         </div>
                     </div>
-                    <button class="btn btn-danger" onclick="removeFile(${index})">ลบ</button>
+                    <button class="btn btn-danger" onclick="removeFile(${index})" style="flex-shrink: 0;">ลบ</button>
                 </div>
             `).join('');
         }
@@ -1088,7 +1227,7 @@
             if (!selectedProject) return;
 
             document.getElementById('loadingOverlay').classList.remove('hidden');
-            document.getElementById('loadingText').textContent = 'กำลังสร้าง BRD ด้วย AI';
+            document.getElementById('loadingText').textContent = 'กำลังสร้าง BRD';
 
             try {
                 const formData = new FormData();
@@ -1130,12 +1269,33 @@
             }
         }
 
+
         function showSuccessBRD(brd, suggestions) {
             const box = document.getElementById('successBoxBRD');
             box.innerHTML = `
-                <h3>สร้าง BRD สำเร็จ</h3>
-                <div style="margin-bottom: 12px; font-weight: 500;">${brd.file_name}</div>
-                <a href="${brd.file_url}" target="_blank">เปิดดูเอกสาร BRD</a>
+            <h3>✅ สร้างเอกสาร BRD สำเร็จ</h3>
+                <div class="version-badge">Version ${brd.version_number}</div>
+                <div class="info-text">
+                    AI กำลังประมวลผลเอกสาร BRD (ใช้เวลาประมาณ 5 นาที)<br>
+                    ติดตามสถานะได้จาก <strong>ตารางประวัติด้านขวา</strong> หรือรับ notification ผ่าน <strong>Discord</strong>
+                </div>
+                <div style="margin-top: 12px; padding: 12px; background: rgba(220, 38, 38, 0.05); border-left: 3px solid var(--primary); border-radius: 8px;">
+                    <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 6px;">ชื่อไฟล์</div>
+                    <div style="font-weight: 500; color: var(--text); font-size: 0.95rem;">${brd.file_name}</div>
+                </div>
+                <div style="margin-top: 16px;">
+                    <a href="${brd.file_url}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px;">
+                        🔗 เปิดดูเอกสาร BRD
+                    </a>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;">
+                        *เนื้อหาจะแสดงเมื่อสถานะเป็น <strong>done</strong>
+                    </div>
+                </div>
+                <div style="margin-top: 16px;">                
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;">
+                        สามารถกดปุ่มวิเคราะห์ได้อีกครั้งหากต้องการสร้างเอกสารใหม่ <strong>done</strong>
+                    </div>
+                </div>
             `;
             box.classList.remove('hidden');
             
@@ -1190,9 +1350,11 @@
             const brdSelect = document.getElementById('brdSelect');
             const wireframeSelect = document.getElementById('wireframeVersionSelect');
             
-            wireframeSelect.innerHTML = '<option value="">ไม่อ้างอิง version ก่อนหน้า</option>';
+            wireframeSelect.innerHTML = '<option value="">สร้าง version ใหม่</option>';
+            wireframeSelect.disabled = false; // เพิ่มบรรทัดนี้
             
             if (!brdSelect.value || !selectedProject) {
+                wireframeSelect.disabled = true; // ปิดการใช้งานถ้าไม่มี BRD
                 updateWireframeButton();
                 return;
             }
@@ -1210,12 +1372,11 @@
                 console.log('Wireframe versions:', data);
 
                 if (data.success && data.data && data.data.wireframes) {
-                    // เรียงจากเวอร์ชันล่าสุดไปเก่าสุด
                     const sortedWireframes = data.data.wireframes.sort((a, b) => b.version_number - a.version_number);
                     
                     sortedWireframes.forEach(wf => {
                         const option = document.createElement('option');
-                        option.value = wf.wireframe_version_id; // ใช้ wireframe_version_id เป็น value
+                        option.value = wf.wireframe_version_id;
                         option.textContent = `V.${wf.version_number}`;
                         option.dataset.wireframe = JSON.stringify(wf);
                         wireframeSelect.appendChild(option);
@@ -1234,71 +1395,86 @@
         }
 
         async function generateWireframe() {
-    const brdVersionId = document.getElementById('brdSelect').value;
-    const wireframeVersionId = document.getElementById('wireframeVersionSelect').value; // เปลี่ยนชื่อตัวแปรให้ชัดเจน
-    const promptText = document.getElementById('promptText').value.trim();
+            const brdVersionId = document.getElementById('brdSelect').value;
+            const wireframeVersionId = document.getElementById('wireframeVersionSelect').value;
+            const promptText = document.getElementById('promptText').value.trim();
 
-    if (!selectedProject || !brdVersionId) return;
+            if (!selectedProject || !brdVersionId) return;
 
-    document.getElementById('loadingOverlay').classList.remove('hidden');
-    document.getElementById('loadingText').textContent = 'กำลังสร้าง Wireframe ด้วย AI (อาจใช้เวลา 2-5 นาที)';
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+            document.getElementById('loadingText').textContent = 'กำลังเตรียมพร้อมสร้าง Wireframe';
 
-    try {
-        const formData = new FormData();
-        formData.append('project_id', selectedProject.project_id);
-        formData.append('brd_version_id', brdVersionId);
-        
-        if (wireframeVersionId) {
-            formData.append('html_version_id', wireframeVersionId); // ส่ง wireframe_version_id เป็น html_version_id
+            try {
+                const formData = new FormData();
+                formData.append('project_id', selectedProject.project_id);
+                formData.append('brd_version_id', brdVersionId);
+                
+                if (wireframeVersionId) {
+                    formData.append('html_version_id', wireframeVersionId);
+                }
+                
+                if (promptText) {
+                    formData.append('prompt_text', promptText);
+                }
+
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 300000);
+
+                const response = await fetch(`${API_ENDPOINT}/create-wireframe`, {
+                    method: 'POST',
+                    body: formData,
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                const data = await response.json();
+                console.log('Wireframe created:', data);
+
+                if (data.success && data.data && data.data.itemWireframe) {
+                    showSuccessWireframe(data.data.itemWireframe);
+                    loadWireframeHistory();
+                    
+                    document.getElementById('brdSelect').value = '';
+                    document.getElementById('wireframeVersionSelect').innerHTML = '<option value="">ไม่อ้างอิง version ก่อนหน้า</option>';
+                    document.getElementById('promptText').value = '';
+                    document.getElementById('charCount').textContent = '0';
+                    updateWireframeButton();
+                } else {
+                    throw new Error('Invalid response');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                if (error.name === 'AbortError') {
+                    alert('การสร้าง Wireframe ใช้เวลานานเกินไป กรุณาลองใหม่อีกครั้ง');
+                } else {
+                    alert('ไม่สามารถสร้าง Wireframe ได้');
+                }
+            } finally {
+                document.getElementById('loadingOverlay').classList.add('hidden');
+            }
         }
-        
-        if (promptText) {
-            formData.append('prompt_text', promptText);
-        }
-
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 300000);
-
-        const response = await fetch(`${API_ENDPOINT}/create-wireframe`, {
-            method: 'POST',
-            body: formData,
-            signal: controller.signal
-        });
-        
-        clearTimeout(timeoutId);
-        const data = await response.json();
-        console.log('Wireframe created:', data);
-
-        if (data.success && data.data) {
-            showSuccessWireframe(data.data);
-            loadWireframeHistory();
-            
-            document.getElementById('brdSelect').value = '';
-            document.getElementById('wireframeVersionSelect').innerHTML = '<option value="">ไม่อ้างอิง version ก่อนหน้า</option>';
-            document.getElementById('promptText').value = '';
-            document.getElementById('charCount').textContent = '0';
-            updateWireframeButton();
-        } else {
-            throw new Error('Invalid response');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        if (error.name === 'AbortError') {
-            alert('การสร้าง Wireframe ใช้เวลานานเกินไป กรุณาลองใหม่อีกครั้ง');
-        } else {
-            alert('ไม่สามารถสร้าง Wireframe ได้');
-        }
-    } finally {
-        document.getElementById('loadingOverlay').classList.add('hidden');
-    }
-}
 
         function showSuccessWireframe(wireframe) {
             const box = document.getElementById('successBoxWF');
-            box.innerHTML = `
-                <h3>สร้าง Wireframe สำเร็จ</h3>
-                <div style="margin-bottom: 12px; font-weight: 500;">${wireframe.file_name}</div>
-                <a href="${wireframe.wireframe_url}" target="_blank">เปิดดู Wireframe</a>
+           box.innerHTML = `
+            <h3>✅ เตรียมพร้อม Wireframe สำเร็จ</h3>
+                <div class="version-badge">Version ${wireframe.version_number}</div>
+                <div class="info-text">
+                    AI กำลังประมวลผลWireframe (ใช้เวลาไม่เกิน 10 นาที)<br>
+                    ติดตามสถานะได้จาก <strong>ตารางประวัติด้านขวา</strong> หรือรับ notification ผ่าน <strong>Discord</strong> เมื่อสร้างเสร็จ
+                </div>
+                <div style="margin-top: 12px; padding: 12px; background: rgba(220, 38, 38, 0.05); border-left: 3px solid var(--primary); border-radius: 8px;">
+                    <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 6px;">ชื่อไฟล์</div>
+                    <div style="font-weight: 500; color: var(--text); font-size: 0.95rem;">${wireframe.file_name}</div>
+                </div>
+                <div style="margin-top: 16px;">
+                    <a href="${wireframe.file_url}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px;">
+                        🔗 เปิดดู Wireframe จากลิงก์นี้
+                    </a>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;">
+                        *เนื้อหาจะแสดงเมื่อสถานะเป็น <strong>done</strong>
+                    </div>
+                </div>
             `;
             box.classList.remove('hidden');
         }
@@ -1329,20 +1505,34 @@
                                     <th>เวอร์ชัน</th>
                                     <th>ลิงก์</th>
                                     <th>สถานะ</th>
+                                    <th>คำแนะนำให้ BRD สมบูรณ์</th>
                                     <th>วันที่สร้าง</th>
                                     <th>วันที่อัพเดท</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                ${data.data.projects.map(brd => `
-                                    <tr>
-                                        <td><strong>V.${brd.version_number}</strong></td>
-                                        <td><a href="${brd.file_url}" target="_blank">เปิดดู</a></td>
-                                        <td><strong>V.${brd.status}</strong></td>
-                                        <td>${formatDate(brd.created_date)}</td>
-                                        <td>${formatDate(brd.updated_date)}</td>
-                                    </tr>
-                                `).join('')}
+                               ${data.data.projects.map(brd => {
+                                    const suggestPreview = brd.suggest_list && brd.suggest_list.length > 50 
+                                        ? brd.suggest_list.substring(0, 50) + '...' 
+                                        : brd.suggest_list || '-';
+                                    
+                                    return `
+                                        <tr>
+                                            <td><strong>V.${brd.version_number}</strong></td>
+                                            <td><a href="${brd.file_url}" target="_blank">ดู</a></td>
+                                            <td><strong>${brd.status}</strong></td>
+                                            <td>
+                                                <span class="suggest-cell" 
+                                                    onmouseenter="showSuggestTooltip(event, \`${(brd.suggest_list || '-').replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)"
+                                                    onmouseleave="scheduleHideTooltip()">
+                                                    ${suggestPreview}
+                                                </span>
+                                            </td>
+                                            <td>${formatDate(brd.created_date)}</td>
+                                            <td>${formatDate(brd.updated_date)}</td>
+                                        </tr>
+                                    `;
+                                }).join('')}
                             </tbody>
                         </table>
                     `;
@@ -1351,6 +1541,72 @@
                 }
             } catch (error) {
                 console.error('Error loading BRD history:', error);
+            }
+        }
+
+        let tooltipElement = null;
+        let hideTooltipTimeout = null;
+
+        function showSuggestTooltip(event, fullText) {
+            // ยกเลิก timeout ที่จะซ่อน tooltip
+            if (hideTooltipTimeout) {
+                clearTimeout(hideTooltipTimeout);
+                hideTooltipTimeout = null;
+            }
+            
+            // ลบ tooltip เก่าถ้ามี
+            if (tooltipElement) {
+                tooltipElement.remove();
+            }
+            
+            // สร้าง tooltip ใหม่
+            tooltipElement = document.createElement('div');
+            tooltipElement.className = 'suggest-tooltip';
+            tooltipElement.textContent = fullText;
+            document.body.appendChild(tooltipElement);
+            
+            // เพิ่ม event listener เพื่อไม่ให้ tooltip หายเมื่อเมาส์อยู่ใน tooltip
+            tooltipElement.addEventListener('mouseenter', () => {
+                if (hideTooltipTimeout) {
+                    clearTimeout(hideTooltipTimeout);
+                    hideTooltipTimeout = null;
+                }
+            });
+            
+            tooltipElement.addEventListener('mouseleave', () => {
+                hideSuggestTooltip();
+            });
+            
+            // คำนวณตำแหน่ง
+            const rect = event.target.getBoundingClientRect();
+            tooltipElement.style.left = rect.left + 'px';
+            tooltipElement.style.top = (rect.bottom + 8) + 'px';
+            
+            // ปรับตำแหน่งถ้าล้นหน้าจอ
+            const tooltipRect = tooltipElement.getBoundingClientRect();
+            if (tooltipRect.right > window.innerWidth) {
+                tooltipElement.style.left = (window.innerWidth - tooltipRect.width - 20) + 'px';
+            }
+            if (tooltipRect.bottom > window.innerHeight) {
+                tooltipElement.style.top = (rect.top - tooltipRect.height - 8) + 'px';
+            }
+        }
+
+        function scheduleHideTooltip() {
+            // รอ 100ms ก่อนซ่อน tooltip เพื่อให้มีเวลาเลื่อนเมาส์ไปที่ tooltip
+            hideTooltipTimeout = setTimeout(() => {
+                hideSuggestTooltip();
+            }, 100);
+        }
+
+        function hideSuggestTooltip() {
+            if (tooltipElement) {
+                tooltipElement.remove();
+                tooltipElement = null;
+            }
+            if (hideTooltipTimeout) {
+                clearTimeout(hideTooltipTimeout);
+                hideTooltipTimeout = null;
             }
         }
 
@@ -1389,9 +1645,9 @@
                                 ${data.data.wireframes.map(wf => `
                                     <tr>
                                         <td><strong>V.${wf.version_number}</strong></td>
-                                        <td><strong>V.${wf.ref_version_number}</strong></td>
-                                        <td><a href="${wf.wireframe_url}" target="_blank">เปิดดู</a></td>
-                                        <td><strong>Pending</strong></td>
+                                        <td>${wf.ref_version_number ? `<strong>V.${wf.ref_version_number}</strong>` : `<span style="color: #94A3B8; font-style: italic;">[ไม่อ้างอิง version]</span>`}</td>
+                                        <td><a href="${wf.wireframe_url}" target="_blank">ดู</a></td>
+                                        <td><strong>${wf.status}</strong></td>
                                         <td>${formatDate(wf.created_date)}</td>
                                         <td>${formatDate(wf.updated_date)}</td>
                                     </tr>
@@ -1423,40 +1679,33 @@
 
         function formatDate(dateString) {
             const date = new Date(dateString);
-            return date.toLocaleDateString('th-TH', {
+            const formatted = date.toLocaleDateString('th-TH', {
                 year: 'numeric',
                 month: 'short',
                 day: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit'
             });
+            
+            // แปลงปี 4 หลักเป็น 2 หลัก (เช่น 2568 -> 68)
+            return formatted.replace(/(\d{4})/, (match) => match.slice(-2));
         }
 
-        function BRDStatus() {
-            const [status, setStatus] = useState({});
+        function refreshHistory() {
+            if (!selectedProject) return;
             
-            useEffect(() => {
-                // Poll ทุก 5 วินาที
-                const interval = setInterval(async () => {
-                const res = await fetch('/api/update-status');
-                const data = await res.json();
-                setStatus(data);
-                }, 5000);
-                
-                return () => clearInterval(interval);
-            }, []);
+            // ดูว่าตอนนี้อยู่ tab ไหน
+            const brdTab = document.querySelector('.tab:first-child');
+            const isOnBRDTab = brdTab.classList.contains('active');
             
-            console.log("BRDStatus : "+status);
-            // return (
-            //     <div>
-            //     {Object.entries(status).map(([id, status]) => (
-            //         <div key={id}>
-            //         BRD {id}: {status}
-            //         </div>
-            //     ))}
-            //     </div>
-            // );
+            if (isOnBRDTab) {
+                loadBRDHistory();
+                loadBRDList(); // refresh dropdown BRD ด้วย
+            } else {
+                loadWireframeHistory();
             }
+        }
+
     </script>
 </body>
 </html>
